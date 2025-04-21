@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import BookingModal from "./BookingModal";
+import { useNavigate } from "react-router-dom";
 
 interface TourCardProps {
   id: string;
@@ -31,6 +31,7 @@ const TourCard: React.FC<TourCardProps> = ({
   ex = "Haridwar", // Default to Haridwar if not provided
 }) => {
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   // Animation: scale in when rendered, hover shadow/lift
   return (
@@ -49,7 +50,7 @@ const TourCard: React.FC<TourCardProps> = ({
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
               <h3 className="text-white font-bold text-lg line-clamp-1">{title}</h3>
               {/* Ex / Route origin */}
-              <span className="text-bharat-orange text-xs block font-semibold mt-1">Ex - {ex}</span>
+              <span className="text-bharat-orange text-xs block font-semibold mt-1 animate-float">Ex - {ex}</span>
             </div>
           </div>
           <CardContent className="pt-4">
@@ -69,7 +70,12 @@ const TourCard: React.FC<TourCardProps> = ({
           </CardContent>
           <CardFooter className="border-t bg-gray-50 py-3">
             <div className="w-full flex justify-between items-center">
-              <Link to={`/trip/${id}`} className="text-sm font-medium text-bharat-orange story-link">View Details</Link>
+              <button
+                onClick={() => navigate(`/trip/${id}`)}
+                className="text-sm font-medium text-bharat-orange story-link hover-scale"
+              >
+                View Details
+              </button>
               <Button 
                 size="sm"
                 className="bg-bharat-orange hover:bg-bharat-orange/90 text-white animate-pulse" 
@@ -84,7 +90,6 @@ const TourCard: React.FC<TourCardProps> = ({
           </CardFooter>
         </Card>
       </div>
-      {/* Modal for booking */}
       {showModal && (
         <BookingModal
           open={showModal}
@@ -101,4 +106,3 @@ const TourCard: React.FC<TourCardProps> = ({
 };
 
 export default TourCard;
-
