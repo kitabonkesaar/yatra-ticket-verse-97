@@ -61,6 +61,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Bharat Yatra colors
+				bharat: {
+					orange: '#F97316', // Bright orange
+					red: '#ea384c', // Vibrant red
+					saffron: '#D946EF', // Magenta pink as saffron substitute
+					purple: '#8B5CF6', // Vibrant purple
 				}
 			},
 			borderRadius: {
