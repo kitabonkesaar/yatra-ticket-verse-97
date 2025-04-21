@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import DigitalTicket from "./DigitalTicket";
 
 interface BookingModalProps {
   open: boolean;
@@ -22,7 +22,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
   advanceAmount,
   startDate,
 }) => {
-  const [step, setStep] = useState<"form" | "success">("form");
+  const [step, setStep] = useState<"form" | "success" | "ticket">("form");
   const [form, setForm] = useState({
     name: "",
     age: "",
@@ -126,10 +126,36 @@ const BookingModal: React.FC<BookingModalProps> = ({
             <p className="text-center text-gray-600 mb-4">
               Thank you for your interest.<br />A team member will contact you for payment and all details soon.
             </p>
-            <Button onClick={onClose} className="bg-bharat-orange w-full">
+            <Button 
+              onClick={() => setStep("ticket")} 
+              className="bg-bharat-orange w-full mb-2"
+            >
+              View Ticket
+            </Button>
+            <Button 
+              onClick={onClose} 
+              variant="outline" 
+              className="w-full"
+            >
               Close
             </Button>
           </div>
+        )}
+        {step === "ticket" && (
+          <DigitalTicket
+            booking={{
+              passengers: [{
+                name: form.name,
+                age: form.age,
+                aadhaar: form.aadhaar
+              }],
+              contact: form.name,
+              tourTitle,
+              startDate,
+              ex,
+              busType: "Sleeper Bus"
+            }}
+          />
         )}
       </div>
     </div>
@@ -137,4 +163,3 @@ const BookingModal: React.FC<BookingModalProps> = ({
 };
 
 export default BookingModal;
-

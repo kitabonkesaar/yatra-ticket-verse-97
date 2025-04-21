@@ -6,7 +6,7 @@ import TourCard from "@/components/TourCard";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search, Calendar, Users, List } from "lucide-react";
+import { Search, Calendar, Users, List, Mountain, Bus, Bed, Calculator } from "lucide-react";
 
 // Mock data for featured tours
 const featuredTours = [
@@ -52,13 +52,13 @@ const featuredTours = [
   },
 ];
 
-// New: Tour categories (could later filter, now just static display)
+// Updated: Tour categories with relevant icons
 const tourCategories = [
-  { icon: <List className="text-bharat-red" size={22} />, name: "Chardham Yatra" },
-  { icon: <List className="text-bharat-orange" size={22} />, name: "Spiritual Journeys" },
-  { icon: <List className="text-bharat-purple" size={22} />, name: "Temple Tours" },
-  { icon: <List className="text-bharat-green" size={22} />, name: "Family Retreats" },
-  { icon: <List className="text-bharat-red" size={22} />, name: "Budget Packages" },
+  { icon: <Mountain className="text-bharat-red" size={22} />, name: "Chardham Yatra" },
+  { icon: <Bus className="text-bharat-orange" size={22} />, name: "Spiritual Journeys" },
+  { icon: <Bed className="text-bharat-purple" size={22} />, name: "Temple Tours" },
+  { icon: <Users className="text-bharat-green" size={22} />, name: "Family Retreats" },
+  { icon: <Calculator className="text-bharat-red" size={22} />, name: "Budget Packages" },
 ];
 
 const Index = () => {
