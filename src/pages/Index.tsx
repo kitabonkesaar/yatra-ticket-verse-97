@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -7,7 +6,7 @@ import TourCard from "@/components/TourCard";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search, Calendar, Users } from "lucide-react";
+import { Search, Calendar, Users, List } from "lucide-react";
 
 // Mock data for featured tours
 const featuredTours = [
@@ -53,6 +52,15 @@ const featuredTours = [
   },
 ];
 
+// New: Tour categories (could later filter, now just static display)
+const tourCategories = [
+  { icon: <List className="text-bharat-red" size={22} />, name: "Chardham Yatra" },
+  { icon: <List className="text-bharat-orange" size={22} />, name: "Spiritual Journeys" },
+  { icon: <List className="text-bharat-purple" size={22} />, name: "Temple Tours" },
+  { icon: <List className="text-bharat-green" size={22} />, name: "Family Retreats" },
+  { icon: <List className="text-bharat-red" size={22} />, name: "Budget Packages" },
+];
+
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
@@ -60,6 +68,27 @@ const Index = () => {
       <main className="flex-grow">
         {/* Hero Section */}
         <HeroBanner />
+
+        {/* Tour Categories */}
+        <section className="pb-10 pt-2 bg-white">
+          <div className="container-custom">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <List className="text-bharat-orange" /> Tour Categories
+            </h2>
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+              {tourCategories.map((cat, idx) => (
+                <div
+                  key={cat.name}
+                  className={`rounded-xl shadow transition-shadow hover:shadow-xl flex flex-col items-center px-6 py-3 bg-gray-50 animate-fade-in`}
+                  style={{ animationDelay: `${idx * 40}ms` }}
+                >
+                  <span className="mb-1">{cat.icon}</span>
+                  <span className="font-semibold text-md">{cat.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Search Section */}
         <section className="py-10 bg-white">
