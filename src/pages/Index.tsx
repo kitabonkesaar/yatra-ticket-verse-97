@@ -6,7 +6,7 @@ import TourCard from "@/components/TourCard";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search, Calendar, Users, List, Mountain, Bus, Bed, Calculator } from "lucide-react";
+import { Car, List, Calendar, MapPin, Users, List as ListIcon, Mountain, Bus, Bed, Calculator } from "lucide-react";
 
 // Mock data for featured tours
 const featuredTours = [
@@ -52,13 +52,20 @@ const featuredTours = [
   },
 ];
 
-// Updated: Tour categories with relevant icons
-const tourCategories = [
-  { icon: <Mountain className="text-bharat-red" size={22} />, name: "Chardham Yatra" },
-  { icon: <Bus className="text-bharat-orange" size={22} />, name: "Spiritual Journeys" },
-  { icon: <Bed className="text-bharat-purple" size={22} />, name: "Temple Tours" },
-  { icon: <Users className="text-bharat-green" size={22} />, name: "Family Retreats" },
-  { icon: <Calculator className="text-bharat-red" size={22} />, name: "Budget Packages" },
+// Updated: Vehicle categories with images
+const vehicleCategories = [
+  { 
+    icon: <Car className="text-bharat-orange" size={22} />, 
+    name: "Bolero", 
+    image: "/placeholder.svg",
+    route: "/vehicle/bolero"
+  },
+  { 
+    icon: <Car className="text-bharat-purple" size={22} />, 
+    name: "Traveller", 
+    image: "/placeholder.svg",
+    route: "/vehicle/traveller"
+  },
 ];
 
 const Index = () => {
@@ -69,81 +76,53 @@ const Index = () => {
         {/* Hero Section */}
         <HeroBanner />
 
-        {/* Tour Categories */}
-        <section className="pb-10 pt-2 bg-white">
+        {/* Vehicle Categories */}
+        <section className="py-12 bg-white">
           <div className="container-custom">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <List className="text-bharat-orange" /> Tour Categories
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <Car className="text-bharat-orange" /> Our Vehicles
             </h2>
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-              {tourCategories.map((cat, idx) => (
-                <div
-                  key={cat.name}
-                  className={`rounded-xl shadow transition-shadow hover:shadow-xl flex flex-col items-center px-6 py-3 bg-gray-50 animate-fade-in`}
-                  style={{ animationDelay: `${idx * 40}ms` }}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {vehicleCategories.map((vehicle, idx) => (
+                <Link
+                  key={vehicle.name}
+                  to={vehicle.route}
+                  className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300"
                 >
-                  <span className="mb-1">{cat.icon}</span>
-                  <span className="font-semibold text-md">{cat.name}</span>
-                </div>
+                  <div className="aspect-[16/9] relative">
+                    <img
+                      src={vehicle.image}
+                      alt={vehicle.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                      <div className="flex items-center gap-2 mb-2">
+                        {vehicle.icon}
+                        <h3 className="text-xl font-bold">{vehicle.name}</h3>
+                      </div>
+                      <p className="text-sm text-white/80">View details and itinerary →</p>
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Search Section */}
-        <section className="py-10 bg-white">
-          <div className="container-custom">
-            <div className="bg-white shadow-lg rounded-lg p-6 -mt-20 relative z-10">
-              <h2 className="text-xl font-semibold mb-6">Find Your Spiritual Journey</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-3 p-3 border rounded-md">
-                  <Search className="text-bharat-orange" size={20} />
-                  <select className="w-full bg-transparent focus:outline-none">
-                    <option value="">Select Destination</option>
-                    <option value="kedarnath">Kedarnath</option>
-                    <option value="badrinath">Badrinath</option>
-                    <option value="nepal">Nepal</option>
-                    <option value="varanasi">Varanasi</option>
-                  </select>
-                </div>
-                <div className="flex items-center space-x-3 p-3 border rounded-md">
-                  <Calendar className="text-bharat-orange" size={20} />
-                  <input 
-                    type="date" 
-                    className="w-full bg-transparent focus:outline-none"
-                    placeholder="Departure Date"
-                  />
-                </div>
-                <div className="flex items-center space-x-3 p-3 border rounded-md">
-                  <Users className="text-bharat-orange" size={20} />
-                  <select className="w-full bg-transparent focus:outline-none">
-                    <option value="">Bus Type</option>
-                    <option value="sleeper">Sleeper Bus</option>
-                    <option value="traveller">Traveller</option>
-                    <option value="bolero">Bolero</option>
-                  </select>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Button className="w-full bg-bharat-orange hover:bg-bharat-orange/90">Search Tours</Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Tours */}
+        {/* Featured Tours - Now more mobile-friendly */}
         <section className="py-16 bg-gray-50">
           <div className="container-custom">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
               <div>
-                <h2 className="text-3xl font-bold mb-2">Featured Tours</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-2">Featured Tours</h2>
                 <p className="text-gray-600">Discover our most popular pilgrimage journeys</p>
               </div>
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild className="w-full sm:w-auto">
                 <Link to="/trips">View All Tours</Link>
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {featuredTours.map((tour) => (
                 <TourCard key={tour.id} {...tour} />
               ))}
