@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TripDetails from "./pages/TripDetails";
 import VehicleDetails from "./pages/VehicleDetails";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
 
 // Admin Dashboard
 import AdminLayout from "./components/admin/AdminLayout";
@@ -30,10 +34,10 @@ const App = () => (
           <Route path="/vehicle/:type" element={<VehicleDetails />} />
           <Route path="/trips" element={<Index />} />
           <Route path="/trip/:id" element={<TripDetails />} />
-          <Route path="/about" element={<Index />} />
-          <Route path="/contact" element={<Index />} />
-          <Route path="/login" element={<Index />} />
-          <Route path="/register" element={<Index />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
