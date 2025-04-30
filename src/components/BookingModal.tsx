@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -25,6 +26,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
     name: "",
     age: "",
     aadhaar: "",
+    contact: "",
     seats: "1"
   });
   if (!open) return null;
@@ -63,8 +65,17 @@ const BookingModal: React.FC<BookingModalProps> = ({
                 <Input type="number" min={1} required name="age" value={form.age} onChange={handleChange} inputMode="numeric" />
               </div>
               <div>
-                
-                
+                <label className="font-medium mb-1 block">Contact Number*</label>
+                <Input 
+                  type="tel" 
+                  required 
+                  name="contact" 
+                  value={form.contact} 
+                  onChange={handleChange} 
+                  placeholder="Your 10-digit phone number"
+                  pattern="[0-9]{10}"
+                  inputMode="tel"
+                />
               </div>
               <div>
                 <label className="font-medium mb-1 block">No. of Seats*</label>
@@ -99,7 +110,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
           age: form.age,
           aadhaar: form.aadhaar
         }],
-        contact: form.name,
+        contact: form.contact || form.name,
         tourTitle,
         startDate,
         ex,
