@@ -1,28 +1,24 @@
 
 import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { Control } from "react-hook-form";
 import { TripPackageFormValues } from "@/schemas/tripPackageSchema";
-import ItineraryFormField from "@/components/admin/ItineraryFormField";
-import { ItineraryItem } from "@/types/admin";
 
-interface ItineraryFieldProps {
+interface DescriptionFieldProps {
   control: Control<TripPackageFormValues>;
 }
 
-const ItineraryField = ({ control }: ItineraryFieldProps) => {
+const DescriptionField = ({ control }: DescriptionFieldProps) => {
   return (
     <FormField 
       control={control} 
-      name="itinerary" 
+      name="description" 
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Itinerary</FormLabel>
+          <FormLabel>Description</FormLabel>
           <FormControl>
-            <ItineraryFormField 
-              value={field.value as ItineraryItem[]} 
-              onChange={field.onChange} 
-            />
+            <Textarea placeholder="Trip package description..." {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -31,4 +27,4 @@ const ItineraryField = ({ control }: ItineraryFieldProps) => {
   );
 };
 
-export default ItineraryField;
+export default DescriptionField;

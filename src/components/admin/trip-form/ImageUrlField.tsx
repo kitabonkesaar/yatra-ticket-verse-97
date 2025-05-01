@@ -1,28 +1,24 @@
 
 import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Control } from "react-hook-form";
 import { TripPackageFormValues } from "@/schemas/tripPackageSchema";
-import ItineraryFormField from "@/components/admin/ItineraryFormField";
-import { ItineraryItem } from "@/types/admin";
 
-interface ItineraryFieldProps {
+interface ImageUrlFieldProps {
   control: Control<TripPackageFormValues>;
 }
 
-const ItineraryField = ({ control }: ItineraryFieldProps) => {
+const ImageUrlField = ({ control }: ImageUrlFieldProps) => {
   return (
     <FormField 
       control={control} 
-      name="itinerary" 
+      name="imageUrl" 
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Itinerary</FormLabel>
+          <FormLabel>Image URL</FormLabel>
           <FormControl>
-            <ItineraryFormField 
-              value={field.value as ItineraryItem[]} 
-              onChange={field.onChange} 
-            />
+            <Input placeholder="https://example.com/image.jpg" {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -31,4 +27,4 @@ const ItineraryField = ({ control }: ItineraryFieldProps) => {
   );
 };
 
-export default ItineraryField;
+export default ImageUrlField;

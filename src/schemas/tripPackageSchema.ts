@@ -45,15 +45,13 @@ export const getFormDefaultValues = (defaultValues: Partial<TripPackageFormValue
     description: "",
     imageUrl: "",
     featured: false,
-    itinerary: [],
-    ...defaultValues,
-    // Ensure itinerary items have the correct shape
+    // Initialize itinerary with correct types
     itinerary: Array.isArray(defaultValues.itinerary) && defaultValues.itinerary.length > 0
       ? defaultValues.itinerary.map(item => ({
           day: typeof item.day === 'number' ? item.day : 1,
           highlight: typeof item.highlight === 'string' ? item.highlight : '',
           details: typeof item.details === 'string' ? item.details : ''
-        })) as ItineraryItem[] // Explicitly cast to ItineraryItem[]
-      : [] as ItineraryItem[] // Explicitly cast empty array to ItineraryItem[]
+        }))
+      : []
   };
 };
