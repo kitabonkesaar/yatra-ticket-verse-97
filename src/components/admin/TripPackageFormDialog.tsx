@@ -1,3 +1,4 @@
+
 import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -13,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { ItineraryItem } from "@/types/admin";
 import ItineraryFormField from "./ItineraryFormField";
 
-// Define the form schema
+// Define the form schema with proper types that match ItineraryItem
 const tripPackageFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters."
@@ -33,11 +34,13 @@ const tripPackageFormSchema = z.object({
   description: z.string().optional(),
   imageUrl: z.string().optional(),
   featured: z.boolean().default(false),
-  itinerary: z.array(z.object({
-    day: z.number().positive(),
-    highlight: z.string(),
-    details: z.string()
-  })).optional()
+  itinerary: z.array(
+    z.object({
+      day: z.number().positive(),
+      highlight: z.string(),
+      details: z.string()
+    })
+  ).optional()
 });
 type TripPackageFormValues = z.infer<typeof tripPackageFormSchema>;
 interface TripPackageFormDialogProps {
@@ -206,7 +209,10 @@ export function TripPackageFormDialog({
           }) => <FormItem>
                   <FormLabel>Itinerary</FormLabel>
                   <FormControl>
-                    <ItineraryFormField value={field.value || []} onChange={field.onChange} />
+                    <ItineraryFormField 
+                      value={field.value || []} 
+                      onChange={(newItinerary: ItineraryItem[]) => field.onChange(newItinerary)} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>} />
