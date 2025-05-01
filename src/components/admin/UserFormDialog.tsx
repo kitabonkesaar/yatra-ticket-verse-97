@@ -1,4 +1,3 @@
-
 import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -32,7 +31,7 @@ const userFormSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
-  phone: z.string().regex(/^\+?[0-9]{10,14}$/, {
+  phone: z.string().regex(/^\+?[0-9 ]{10,14}$/, {
     message: "Please enter a valid phone number.",
   }),
   role: z.enum(["Customer", "Admin"]),

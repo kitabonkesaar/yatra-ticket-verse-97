@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ interface User {
 }
 
 // Mock data - in a real app, this would come from your backend
-const mockUsers = [
+const mockUsers: User[] = [
   {
     id: 1,
     name: "John Doe",
