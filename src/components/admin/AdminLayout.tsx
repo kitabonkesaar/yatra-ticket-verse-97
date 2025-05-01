@@ -74,7 +74,7 @@ const AdminLayout = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive("/admin/analytics")}>
-                  <Link to="/admin/bookings" className="flex items-center">
+                  <Link to="/admin/analytics" className="flex items-center">
                     <BarChart4 className="h-5 w-5" />
                     <span>Analytics</span>
                   </Link>

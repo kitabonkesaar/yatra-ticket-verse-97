@@ -19,6 +19,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import UsersManagement from "./pages/admin/UsersManagement";
 import BookingsManagement from "./pages/admin/BookingsManagement";
 import SettingsPage from "./pages/admin/SettingsPage";
+import AnalyticsPage from "./pages/admin/AnalyticsPage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="users" element={<UsersManagement />} />
             <Route path="bookings" element={<BookingsManagement />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
           

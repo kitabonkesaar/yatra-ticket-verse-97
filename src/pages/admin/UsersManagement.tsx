@@ -6,6 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Edit, Trash, Plus, Search, Filter, ArrowDown, ArrowUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserFormDialog } from "@/components/admin/UserFormDialog";
+import { DeleteConfirmDialog } from "@/components/admin/DeleteConfirmDialog";
+import { toast } from "@/hooks/use-toast";
+
+// User type definition
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: "Customer" | "Admin";
+  status: "Active" | "Inactive";
+  lastActive: string;
+  image: string;
+}
 
 // Mock data - in a real app, this would come from your backend
 const mockUsers = [
@@ -62,10 +77,16 @@ const mockUsers = [
 ];
 
 const UsersManagement = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState<User[]>(mockUsers);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  
+  // State for dialogs
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -100,15 +121,58 @@ const UsersManagement = () => {
     user.phone.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDeleteUser = (id: number) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter(user => user.id !== id));
-    }
+  // CRUD operations
+  const handleAddUser = (userData: Omit<User, 'id' | 'lastActive' | 'image'>) => {
+    const newUser: User = {
+      ...userData,
+      id: users.length > 0 ? Math.max(...users.map(user => user.id)) + 1 : 1,
+      lastActive: new Date().toISOString(),
+      image: `https://ui-avatars.com/api/?name=${userData.name.replace(/ /g, '+')}`,
+    };
+    
+    setUsers([...users, newUser]);
+    toast({
+      title: "User Added",
+      description: `${newUser.name} has been added successfully.`,
+    });
   };
 
-  const getSortIcon = (field: string) => {
-    if (sortField !== field) return null;
-    return sortDirection === "asc" ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
+  const handleEditUser = (userData: Omit<User, 'id' | 'lastActive' | 'image'>) => {
+    if (!currentUser) return;
+    
+    const updatedUsers = users.map(user => 
+      user.id === currentUser.id 
+        ? { ...user, ...userData } 
+        : user
+    );
+    
+    setUsers(updatedUsers);
+    toast({
+      title: "User Updated",
+      description: `${userData.name}'s information has been updated.`,
+    });
+  };
+
+  const handleDeleteUser = () => {
+    if (!currentUser) return;
+    
+    setUsers(users.filter(user => user.id !== currentUser.id));
+    toast({
+      title: "User Deleted",
+      description: `${currentUser.name} has been deleted.`,
+      variant: "destructive",
+    });
+  };
+
+  // UI handlers
+  const openEditDialog = (user: User) => {
+    setCurrentUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (user: User) => {
+    setCurrentUser(user);
+    setIsDeleteDialogOpen(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -123,6 +187,11 @@ const UsersManagement = () => {
     });
   };
 
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) return null;
+    return sortDirection === "asc" ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -130,7 +199,7 @@ const UsersManagement = () => {
           <h1 className="text-2xl font-bold">User Management</h1>
           <p className="text-gray-500">Manage all users of the platform</p>
         </div>
-        <Button>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add New User
         </Button>
       </div>
@@ -225,10 +294,20 @@ const UsersManagement = () => {
                     <TableCell>{formatDate(user.lastActive)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={() => openEditDialog(user)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteUser(user.id)}>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => openDeleteDialog(user)}
+                        >
                           <Trash className="h-4 w-4" />
                         </Button>
                       </div>
@@ -248,6 +327,40 @@ const UsersManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add User Dialog */}
+      <UserFormDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSubmit={handleAddUser}
+        title="Add New User"
+      />
+
+      {/* Edit User Dialog */}
+      {currentUser && (
+        <UserFormDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSubmit={handleEditUser}
+          defaultValues={{
+            name: currentUser.name,
+            email: currentUser.email,
+            phone: currentUser.phone,
+            role: currentUser.role,
+            status: currentUser.status
+          }}
+          title="Edit User"
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteUser}
+        title="Delete User"
+        description={`Are you sure you want to delete ${currentUser?.name}? This action cannot be undone.`}
+      />
     </div>
   );
 };
