@@ -1,4 +1,3 @@
-
 import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -73,14 +72,15 @@ export function TripPackageFormDialog({
   const formDefaultValues = {
     ...defaultValues,
     itinerary: Array.isArray(defaultValues.itinerary) && defaultValues.itinerary.length > 0 
-      ? defaultValues.itinerary.map(item => ({
-          // Ensure day is always a number and has default value 1 if missing
-          day: typeof item.day === 'number' ? item.day : 1,
-          // Ensure highlight and details have default values if missing
-          highlight: item.highlight || '',
-          details: item.details || ''
-        }))
-      : []
+      ? defaultValues.itinerary.map(item => {
+          // Ensure all required properties exist with default values if missing
+          return {
+            day: typeof item.day === 'number' ? item.day : 1,
+            highlight: typeof item.highlight === 'string' ? item.highlight : '',
+            details: typeof item.details === 'string' ? item.details : ''
+          } as ItineraryItem; // Explicitly cast to ItineraryItem
+        })
+      : [] as ItineraryItem[] // Explicitly cast empty array to ItineraryItem[]
   };
 
   const form = useForm<TripPackageFormValues>({

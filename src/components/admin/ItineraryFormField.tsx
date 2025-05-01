@@ -1,11 +1,9 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2 } from "lucide-react";
 import { ItineraryItem } from "@/types/admin";
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ItineraryFormFieldProps {
   value: ItineraryItem[];
@@ -17,7 +15,7 @@ const ItineraryFormField = ({ value, onChange }: ItineraryFormFieldProps) => {
     const nextDay = value.length > 0 ? Math.max(...value.map(item => item.day)) + 1 : 1;
     onChange([
       ...value,
-      // Ensure we add a complete ItineraryItem with all required fields
+      // Create a new ItineraryItem with all required properties
       { day: nextDay, highlight: "", details: "" }
     ]);
   };
