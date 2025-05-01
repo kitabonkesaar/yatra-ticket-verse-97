@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -15,47 +14,46 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
-
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email.").optional(),
-  phone: z.string().optional(),
+  phone: z.string().optional()
 });
-
 const profilePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
   newPassword: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
+  confirmPassword: z.string().min(6, "Password must be at least 6 characters")
+}).refine(data => data.newPassword === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"],
+  path: ["confirmPassword"]
 });
-
 const ProfilePage = () => {
-  const { user, loading } = useProtectedRoute();
-  const { signOut } = useAuth();
+  const {
+    user,
+    loading
+  } = useProtectedRoute();
+  const {
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [loadingPasswordUpdate, setLoadingPasswordUpdate] = useState(false);
-
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: "",
       email: "",
-      phone: "",
-    },
+      phone: ""
+    }
   });
-
   const passwordForm = useForm<z.infer<typeof profilePasswordSchema>>({
     resolver: zodResolver(profilePasswordSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
-      confirmPassword: "",
-    },
+      confirmPassword: ""
+    }
   });
-
   useEffect(() => {
     if (user) {
       // In a real app, you'd fetch profile details from a profiles table
@@ -65,19 +63,18 @@ const ProfilePage = () => {
       form.setValue("phone", user.user_metadata?.phone || "");
     }
   }, [user, form]);
-
   const onUpdateProfile = async (values: z.infer<typeof profileSchema>) => {
     if (!user) return;
-
     setLoadingProfile(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      const {
+        error
+      } = await supabase.auth.updateUser({
         data: {
           name: values.fullName,
-          phone: values.phone,
+          phone: values.phone
         }
       });
-
       if (error) throw error;
       toast.success("Profile updated successfully");
     } catch (error: any) {
@@ -86,14 +83,14 @@ const ProfilePage = () => {
       setLoadingProfile(false);
     }
   };
-
   const onUpdatePassword = async (values: z.infer<typeof profilePasswordSchema>) => {
     setLoadingPasswordUpdate(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: values.newPassword,
+      const {
+        error
+      } = await supabase.auth.updateUser({
+        password: values.newPassword
       });
-
       if (error) throw error;
       toast.success("Password updated successfully");
       passwordForm.reset();
@@ -103,15 +100,12 @@ const ProfilePage = () => {
       setLoadingPasswordUpdate(false);
     }
   };
-
   const handleLogout = async () => {
     await signOut();
     navigate("/login");
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
+    return <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="animate-pulse flex flex-col items-center space-y-4">
@@ -120,14 +114,11 @@ const ProfilePage = () => {
           </div>
         </main>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="container-custom py-10">
+      <main className="container-custom py-[47px] my-[13px] mx-[240px] px-[45px]">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-bold mb-6">My Profile</h1>
           
@@ -146,52 +137,36 @@ const ProfilePage = () => {
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onUpdateProfile)}>
                     <CardContent className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
+                      <FormField control={form.control} name="fullName" render={({
+                      field
+                    }) => <FormItem>
                             <FormLabel>Full Name</FormLabel>
                             <FormControl>
                               <Input {...field} />
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
+                          </FormItem>} />
+                      <FormField control={form.control} name="email" render={({
+                      field
+                    }) => <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
                               <Input {...field} disabled />
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
+                          </FormItem>} />
+                      <FormField control={form.control} name="phone" render={({
+                      field
+                    }) => <FormItem>
                             <FormLabel>Phone</FormLabel>
                             <FormControl>
                               <Input {...field} />
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                          </FormItem>} />
                     </CardContent>
                     <CardFooter>
-                      <Button 
-                        type="submit" 
-                        disabled={loadingProfile}
-                        className="bg-bharat-orange hover:bg-bharat-orange/90"
-                      >
+                      <Button type="submit" disabled={loadingProfile} className="bg-bharat-orange hover:bg-bharat-orange/90">
                         {loadingProfile ? "Saving..." : "Update Profile"}
                       </Button>
                     </CardFooter>
@@ -209,52 +184,36 @@ const ProfilePage = () => {
                 <Form {...passwordForm}>
                   <form onSubmit={passwordForm.handleSubmit(onUpdatePassword)}>
                     <CardContent className="space-y-4">
-                      <FormField
-                        control={passwordForm.control}
-                        name="currentPassword"
-                        render={({ field }) => (
-                          <FormItem>
+                      <FormField control={passwordForm.control} name="currentPassword" render={({
+                      field
+                    }) => <FormItem>
                             <FormLabel>Current Password</FormLabel>
                             <FormControl>
                               <Input type="password" {...field} />
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={passwordForm.control}
-                        name="newPassword"
-                        render={({ field }) => (
-                          <FormItem>
+                          </FormItem>} />
+                      <FormField control={passwordForm.control} name="newPassword" render={({
+                      field
+                    }) => <FormItem>
                             <FormLabel>New Password</FormLabel>
                             <FormControl>
                               <Input type="password" {...field} />
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={passwordForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
+                          </FormItem>} />
+                      <FormField control={passwordForm.control} name="confirmPassword" render={({
+                      field
+                    }) => <FormItem>
                             <FormLabel>Confirm New Password</FormLabel>
                             <FormControl>
                               <Input type="password" {...field} />
                             </FormControl>
                             <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                          </FormItem>} />
                     </CardContent>
                     <CardFooter>
-                      <Button 
-                        type="submit" 
-                        disabled={loadingPasswordUpdate}
-                        className="bg-bharat-orange hover:bg-bharat-orange/90"
-                      >
+                      <Button type="submit" disabled={loadingPasswordUpdate} className="bg-bharat-orange hover:bg-bharat-orange/90">
                         {loadingPasswordUpdate ? "Updating..." : "Update Password"}
                       </Button>
                     </CardFooter>
@@ -272,8 +231,6 @@ const ProfilePage = () => {
         </div>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ProfilePage;
