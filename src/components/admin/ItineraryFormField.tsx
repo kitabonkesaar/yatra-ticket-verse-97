@@ -17,6 +17,7 @@ const ItineraryFormField = ({ value, onChange }: ItineraryFormFieldProps) => {
     const nextDay = value.length > 0 ? Math.max(...value.map(item => item.day)) + 1 : 1;
     onChange([
       ...value,
+      // Ensure we add a complete ItineraryItem with all required fields
       { day: nextDay, highlight: "", details: "" }
     ]);
   };

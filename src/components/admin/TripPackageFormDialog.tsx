@@ -72,13 +72,15 @@ export function TripPackageFormDialog({
   // Ensure defaultValues.itinerary is properly typed as ItineraryItem[]
   const formDefaultValues = {
     ...defaultValues,
-    itinerary: defaultValues.itinerary && defaultValues.itinerary.length > 0 
+    itinerary: Array.isArray(defaultValues.itinerary) && defaultValues.itinerary.length > 0 
       ? defaultValues.itinerary.map(item => ({
+          // Ensure day is always a number and has default value 1 if missing
           day: typeof item.day === 'number' ? item.day : 1,
+          // Ensure highlight and details have default values if missing
           highlight: item.highlight || '',
           details: item.details || ''
-        })) as ItineraryItem[]
-      : [] as ItineraryItem[]
+        }))
+      : []
   };
 
   const form = useForm<TripPackageFormValues>({
