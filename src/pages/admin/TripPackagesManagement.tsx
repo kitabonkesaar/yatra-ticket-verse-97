@@ -4,11 +4,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { TripPackageFormDialog } from "@/components/admin/TripPackageFormDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, Bus, Star } from "lucide-react";
+import { Plus, Edit, Trash2, Bus, Star, ListTodo, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { TripPackage } from "@/types/admin";
+import { TripPackage, ItineraryItem } from "@/types/admin";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import TripItinerary from "@/components/TripItinerary";
 
 // Mock data - in a real app, this would come from your backend
 const mockTripPackages: TripPackage[] = [
@@ -24,6 +26,23 @@ const mockTripPackages: TripPackage[] = [
     description: "Experience the rich culture and heritage of India's most famous cities",
     imageUrl: "https://example.com/golden-triangle.jpg",
     featured: true,
+    itinerary: [
+      {
+        day: 1,
+        highlight: "Arrival in Delhi",
+        details: "Arrive at Delhi airport, transfer to hotel. Evening visit to local markets."
+      },
+      {
+        day: 2,
+        highlight: "Delhi City Tour",
+        details: "Full day sightseeing of Old and New Delhi including Red Fort, Jama Masjid, and Qutub Minar."
+      },
+      {
+        day: 3,
+        highlight: "Delhi to Agra",
+        details: "Morning drive to Agra. Afternoon visit to Taj Mahal and Agra Fort."
+      }
+    ]
   },
   {
     id: 2,
@@ -35,6 +54,18 @@ const mockTripPackages: TripPackage[] = [
     description: "Explore the paradise on earth with beautiful landscapes and serene lakes",
     imageUrl: "https://example.com/kashmir.jpg",
     featured: true,
+    itinerary: [
+      {
+        day: 1,
+        highlight: "Arrival in Srinagar",
+        details: "Arrive at Srinagar airport, transfer to houseboat. Evening Shikara ride on Dal Lake."
+      },
+      {
+        day: 2,
+        highlight: "Gulmarg Excursion",
+        details: "Full day trip to Gulmarg. Enjoy gondola ride and panoramic views."
+      }
+    ]
   },
   {
     id: 3,
@@ -46,6 +77,7 @@ const mockTripPackages: TripPackage[] = [
     description: "Relax in the serene backwaters and beautiful beaches of God's own country",
     imageUrl: "https://example.com/kerala.jpg",
     featured: false,
+    itinerary: []
   },
 ];
 
@@ -56,6 +88,7 @@ const TripPackagesManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPackage, setSelectedPackage] = useState<TripPackage | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [viewItineraryDialogOpen, setViewItineraryDialogOpen] = useState(false);
 
   const filteredPackages = tripPackages.filter(pkg => 
     pkg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,6 +111,11 @@ const TripPackagesManagement = () => {
   const handleDeletePackage = (tripPackage: TripPackage) => {
     setSelectedPackage(tripPackage);
     setDeleteDialogOpen(true);
+  };
+
+  const viewItinerary = (tripPackage: TripPackage) => {
+    setSelectedPackage(tripPackage);
+    setViewItineraryDialogOpen(true);
   };
 
   const confirmDelete = () => {
@@ -118,6 +156,11 @@ const TripPackagesManagement = () => {
     }).format(price);
   };
 
+  const getItineraryCount = (itinerary?: ItineraryItem[]) => {
+    if (!itinerary) return 0;
+    return itinerary.length;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -147,6 +190,7 @@ const TripPackagesManagement = () => {
               <TableHead>Price</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Featured</TableHead>
+              <TableHead>Itinerary</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -175,6 +219,22 @@ const TripPackagesManagement = () => {
                       <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                     )}
                   </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <ListTodo className="h-4 w-4 text-gray-500" />
+                      <span>{getItineraryCount(tripPackage.itinerary)} days</span>
+                      {getItineraryCount(tripPackage.itinerary) > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 ml-1"
+                          onClick={() => viewItinerary(tripPackage)}
+                        >
+                          <Eye className="h-3.5 w-3.5 text-blue-500" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -198,7 +258,7 @@ const TripPackagesManagement = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4">
+                <TableCell colSpan={8} className="text-center py-4">
                   No trip packages found
                 </TableCell>
               </TableRow>
@@ -231,6 +291,28 @@ const TripPackagesManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <Dialog open={viewItineraryDialogOpen} onOpenChange={setViewItineraryDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{selectedPackage?.name} - Itinerary</DialogTitle>
+          </DialogHeader>
+          
+          {selectedPackage && selectedPackage.itinerary && selectedPackage.itinerary.length > 0 ? (
+            <TripItinerary itinerary={selectedPackage.itinerary} />
+          ) : (
+            <div className="py-8 text-center text-gray-500">
+              No itinerary available for this trip package.
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setViewItineraryDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

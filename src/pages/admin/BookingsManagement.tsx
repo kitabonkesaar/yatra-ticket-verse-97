@@ -10,13 +10,48 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, FileText, Filter, Download, ArrowDown, ArrowUp } from "lucide-react";
+import { Search, FileText, Filter, Download, ArrowDown, ArrowUp, Plus, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BookingFormDialog } from "@/components/admin/BookingFormDialog";
+import { BookingDetailsDialog } from "@/components/admin/BookingDetailsDialog";
+import { toast } from "@/hooks/use-toast";
+import { Booking, TripPackage } from "@/types/admin";
+
+// Mock trip packages for the booking form
+const mockTripPackages: TripPackage[] = [
+  {
+    id: 1,
+    name: "Golden Triangle Tour",
+    destination: "Delhi-Agra-Jaipur",
+    duration: "6 days 5 nights",
+    price: 25000,
+    status: "Active",
+    featured: true,
+  },
+  {
+    id: 2,
+    name: "Kashmir Valley",
+    destination: "Srinagar-Gulmarg-Pahalgam",
+    duration: "5 days 4 nights",
+    price: 30000,
+    status: "Active",
+    featured: true,
+  },
+  {
+    id: 3,
+    name: "Kerala Backwaters",
+    destination: "Kochi-Alleppey-Kovalam",
+    duration: "7 days 6 nights",
+    price: 35000,
+    status: "Inactive",
+    featured: false,
+  },
+];
 
 // Mock data - in a real app, this would come from your backend
-const mockBookings = [
+const mockBookings: Booking[] = [
   { 
     id: 1, 
     customer: "John Doe", 
@@ -27,7 +62,8 @@ const mockBookings = [
     passengers: 3, 
     status: "Confirmed", 
     total: 16500,
-    paymentType: "Online"
+    paymentType: "Online",
+    notes: "Customer requested vegetarian meals."
   },
   { 
     id: 2, 
@@ -80,9 +116,13 @@ const mockBookings = [
 ];
 
 const BookingsManagement = () => {
+  const [bookings, setBookings] = useState<Booking[]>(mockBookings);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -93,7 +133,7 @@ const BookingsManagement = () => {
     }
   };
 
-  const sortedBookings = [...mockBookings].sort((a, b) => {
+  const sortedBookings = [...bookings].sort((a, b) => {
     if (!sortField) return 0;
     
     const fieldA = a[sortField as keyof typeof a];
@@ -137,6 +177,39 @@ const BookingsManagement = () => {
     }
   };
 
+  const handleAddBooking = () => {
+    setSelectedBooking(null);
+    setFormDialogOpen(true);
+  };
+
+  const handleViewBooking = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleSubmitBooking = (values: any) => {
+    const newId = Math.max(0, ...bookings.map(b => b.id)) + 1;
+    const newBooking: Booking = {
+      id: newId,
+      customer: values.customer,
+      customerEmail: values.customerEmail,
+      customerImage: `https://ui-avatars.com/api/?name=${values.customer.replace(' ', '+')}`,
+      destination: values.destination,
+      date: values.date,
+      passengers: values.passengers,
+      status: values.status,
+      total: values.total,
+      paymentType: values.paymentType,
+      notes: values.notes
+    };
+    
+    setBookings([...bookings, newBooking]);
+    toast({
+      title: "Booking created",
+      description: `Booking for ${values.customer} has been created successfully.`
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -148,7 +221,9 @@ const BookingsManagement = () => {
           <Button variant="outline" className="mr-2">
             <Download className="mr-2 h-4 w-4" /> Export
           </Button>
-          <Button>Add Booking</Button>
+          <Button onClick={handleAddBooking}>
+            <Plus className="mr-2 h-4 w-4" /> Add Booking
+          </Button>
         </div>
       </div>
       
@@ -247,9 +322,14 @@ const BookingsManagement = () => {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <FileText className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewBooking(booking)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -266,6 +346,20 @@ const BookingsManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      <BookingFormDialog
+        open={formDialogOpen}
+        onOpenChange={setFormDialogOpen}
+        onSubmit={handleSubmitBooking}
+        title="Add New Booking"
+        tripPackages={mockTripPackages}
+      />
+
+      <BookingDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        booking={selectedBooking}
+      />
     </div>
   );
 };

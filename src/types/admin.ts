@@ -24,6 +24,13 @@ export interface Vehicle {
   description?: string;
 }
 
+// Itinerary item interface
+export interface ItineraryItem {
+  day: number;
+  highlight: string;
+  details: string;
+}
+
 // Trip Package interface
 export interface TripPackage {
   id: number;
@@ -37,4 +44,20 @@ export interface TripPackage {
   description?: string;
   imageUrl?: string;
   featured: boolean;
+  itinerary?: ItineraryItem[];
+}
+
+// Booking interface
+export interface Booking {
+  id: number;
+  customer: string;
+  customerEmail: string;
+  customerImage?: string;
+  destination: string;
+  date: Date;
+  passengers: number;
+  status: "Confirmed" | "Pending" | "Cancelled";
+  total: number;
+  paymentType: "Online" | "Cash";
+  notes?: string;
 }

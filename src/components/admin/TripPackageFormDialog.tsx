@@ -26,6 +26,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { ItineraryItem } from "@/types/admin";
+import ItineraryFormField from "./ItineraryFormField";
 
 // Define the form schema
 const tripPackageFormSchema = z.object({
@@ -47,6 +49,13 @@ const tripPackageFormSchema = z.object({
   description: z.string().optional(),
   imageUrl: z.string().optional(),
   featured: z.boolean().default(false),
+  itinerary: z.array(
+    z.object({
+      day: z.number().positive(),
+      highlight: z.string(),
+      details: z.string()
+    })
+  ).optional(),
 });
 
 type TripPackageFormValues = z.infer<typeof tripPackageFormSchema>;
@@ -74,6 +83,7 @@ export function TripPackageFormDialog({
     description: "",
     imageUrl: "",
     featured: false,
+    itinerary: [],
   },
   title
 }: TripPackageFormDialogProps) {
@@ -94,7 +104,7 @@ export function TripPackageFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -257,6 +267,23 @@ export function TripPackageFormDialog({
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="itinerary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Itinerary</FormLabel>
+                  <FormControl>
+                    <ItineraryFormField 
+                      value={field.value || []} 
+                      onChange={field.onChange} 
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
