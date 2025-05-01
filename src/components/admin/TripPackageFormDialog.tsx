@@ -1,3 +1,4 @@
+
 import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -76,8 +77,8 @@ export function TripPackageFormDialog({
           day: typeof item.day === 'number' ? item.day : 1,
           highlight: item.highlight || '',
           details: item.details || ''
-        }))
-      : []
+        })) as ItineraryItem[]
+      : [] as ItineraryItem[]
   };
 
   const form = useForm<TripPackageFormValues>({
@@ -223,7 +224,7 @@ export function TripPackageFormDialog({
                   <FormLabel>Itinerary</FormLabel>
                   <FormControl>
                     <ItineraryFormField 
-                      value={field.value || []} 
+                      value={field.value} 
                       onChange={field.onChange} 
                     />
                   </FormControl>
