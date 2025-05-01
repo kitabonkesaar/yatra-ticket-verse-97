@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -69,14 +69,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       toast.success("Logged in successfully!");
       navigate("/");
-      return data;
     } catch (error: any) {
       toast.error(error.message || "Error signing in");
       throw error;
     }
   };
 
-  const signUp = async (email: string, password: string, metadata = {}) => {
+  const signUp = async (email: string, password: string, metadata = {}): Promise<void> => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -89,14 +88,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       
       toast.success("Account created successfully! Please check your email.");
-      return data;
     } catch (error: any) {
       toast.error(error.message || "Error signing up");
       throw error;
     }
   };
 
-  const signOut = async () => {
+  const signOut = async (): Promise<void> => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -108,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     session,
     user,
     loading,
@@ -128,4 +126,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
