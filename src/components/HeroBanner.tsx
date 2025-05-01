@@ -1,18 +1,11 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
-
 const HeroBanner = () => {
-  return (
-    <div className="relative bg-gray-900 text-white">
+  return <div className="relative bg-gray-900 text-white">
       {/* Hero Background Image */}
       <div className="absolute inset-0">
-        <img
-          src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80"
-          alt="Spiritual journey across India"
-          className="w-full h-full object-cover opacity-40"
-        />
+        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80" alt="Spiritual journey across India" className="w-full h-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
       </div>
       
@@ -31,13 +24,11 @@ const HeroBanner = () => {
               <Link to="/trips">Explore Tours</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
-              <Link to="/about">Learn More</Link>
+              
             </Button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default HeroBanner;
