@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,39 +11,27 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Ticket, Eye } from "lucide-react";
 import { toast } from "sonner";
 import DigitalTicket from "@/components/DigitalTicket";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProfilePage = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const { user, loading } = useAuth();
+  useProtectedRoute(); // Protect this route
+  
   const [bookings, setBookings] = useState<any[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [viewTicket, setViewTicket] = useState(false);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          navigate("/login");
-          return;
-        }
-        
-        setUser(session.user);
-        fetchBookings(session.user.id);
-      } catch (error) {
-        console.error("Error checking session:", error);
-        navigate("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkSession();
-  }, [navigate]);
+    if (user) {
+      fetchBookings(user.id);
+    }
+  }, [user]);
 
   const fetchBookings = async (userId: string) => {
     try {
+      setBookingsLoading(true);
       // Fetch bookings for the current user
       const { data: bookingsData, error: bookingsError } = await supabase
         .from("bookings")
@@ -77,6 +64,8 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error fetching bookings:", error);
       toast.error("Failed to load booking history");
+    } finally {
+      setBookingsLoading(false);
     }
   };
 
@@ -93,7 +82,7 @@ const ProfilePage = () => {
     });
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen">
         <Navbar />
@@ -136,7 +125,13 @@ const ProfilePage = () => {
               </TabsList>
               
               <TabsContent value="bookings" className="space-y-4">
-                {bookings.length === 0 ? (
+                {bookingsLoading ? (
+                  <div className="animate-pulse space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                    ))}
+                  </div>
+                ) : bookings.length === 0 ? (
                   <div className="text-center py-12">
                     <h3 className="text-xl font-medium text-gray-500 mb-4">No bookings found</h3>
                     <p className="text-gray-400 mb-6">You haven't made any tour bookings yet.</p>

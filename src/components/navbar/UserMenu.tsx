@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UserMenuProps {
   user: any;
@@ -14,12 +14,11 @@ interface UserMenuProps {
 
 const UserMenu = ({ user }: UserMenuProps) => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      toast.success("Logged out successfully");
-      navigate("/");
+      await signOut();
     } catch (error) {
       console.error("Error signing out:", error);
       toast.error("Failed to log out");
@@ -61,6 +60,14 @@ const UserMenu = ({ user }: UserMenuProps) => {
             <span>My Bookings</span>
           </Link>
         </DropdownMenuItem>
+        {user?.email === "admin@bharatyatra.com" && (
+          <DropdownMenuItem asChild>
+            <Link to="/admin" className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              <span>Admin Dashboard</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>

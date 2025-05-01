@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +10,14 @@ import { toast } from "sonner";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { user, loading, signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -24,6 +26,13 @@ const LoginPage = () => {
     confirmPassword: ""
   });
 
+  useEffect(() => {
+    // Redirect if already logged in
+    if (user && !loading) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -31,34 +40,75 @@ const LoginPage = () => {
     });
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Login successful!");
-      navigate("/");
-    }, 1500);
+    try {
+      setIsSubmitting(true);
+      await signIn(formData.email, formData.password);
+    } catch (error) {
+      console.error("Login error:", error);
+      // Error is already handled in the signIn function
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords don't match");
       return;
     }
 
-    setLoading(true);
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Registration successful! Please check your email to verify your account.");
+    try {
+      setIsSubmitting(true);
+      await signUp(formData.email, formData.password, {
+        name: formData.name
+      });
+      // After sign up, switch to login
       setIsLogin(true);
-    }, 1500);
+    } catch (error) {
+      console.error("Registration error:", error);
+      // Error is already handled in the signUp function
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="animate-pulse flex flex-col items-center space-y-4">
+            <div className="h-12 w-48 bg-gray-200 rounded"></div>
+            <div className="h-64 w-full max-w-md bg-gray-200 rounded"></div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // If already logged in, user will be redirected by useEffect
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -124,15 +174,21 @@ const LoginPage = () => {
                         </button>
                       </div>
                     </div>
+                    
+                    <div className="pt-4 text-sm">
+                      <p className="text-orange-600">Demo Accounts:</p>
+                      <p>- User: user@bharatyatra.com / password123</p>
+                      <p>- Admin: admin@bharatyatra.com / admin123</p>
+                    </div>
                   </CardContent>
                   
                   <CardFooter>
                     <Button 
                       type="submit" 
                       className="w-full bg-bharat-orange hover:bg-bharat-orange/90"
-                      disabled={loading}
+                      disabled={isSubmitting}
                     >
-                      {loading ? "Please wait..." : "Login"}
+                      {isSubmitting ? "Please wait..." : "Login"}
                     </Button>
                   </CardFooter>
                 </form>
@@ -210,9 +266,9 @@ const LoginPage = () => {
                     <Button 
                       type="submit" 
                       className="w-full bg-bharat-orange hover:bg-bharat-orange/90"
-                      disabled={loading}
+                      disabled={isSubmitting}
                     >
-                      {loading ? "Please wait..." : "Register"}
+                      {isSubmitting ? "Please wait..." : "Register"}
                     </Button>
                   </CardFooter>
                 </form>

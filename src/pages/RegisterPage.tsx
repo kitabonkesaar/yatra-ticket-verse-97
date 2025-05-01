@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { user, loading, signUp } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -23,6 +24,13 @@ const RegisterPage = () => {
     confirmPassword: ""
   });
 
+  useEffect(() => {
+    // Redirect if already logged in
+    if (user && !loading) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -30,7 +38,7 @@ const RegisterPage = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -44,15 +52,36 @@ const RegisterPage = () => {
       return;
     }
     
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Registration successful! Please check your email to verify your account.");
+    try {
+      setIsSubmitting(true);
+      await signUp(formData.email, formData.password, {
+        full_name: formData.fullName,
+        mobile: formData.mobile
+      });
       navigate("/login");
-    }, 1500);
+    } catch (error) {
+      console.error("Registration error:", error);
+      // Error is already handled in the signUp function
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="animate-pulse flex flex-col items-center space-y-4">
+            <div className="h-12 w-48 bg-gray-200 rounded"></div>
+            <div className="h-64 w-full max-w-md bg-gray-200 rounded"></div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -163,9 +192,9 @@ const RegisterPage = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-bharat-orange hover:bg-bharat-orange/90"
-                  disabled={loading}
+                  disabled={isSubmitting}
                 >
-                  {loading ? "Creating your account..." : "Create Account"}
+                  {isSubmitting ? "Creating your account..." : "Create Account"}
                 </Button>
                 
                 <div className="text-center">

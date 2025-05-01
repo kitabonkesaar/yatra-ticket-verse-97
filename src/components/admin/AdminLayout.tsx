@@ -4,7 +4,12 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { LayoutDashboard, Users, FileText, Settings, LogOut, BarChart4, Car, Plane } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAdminRoute } from "@/hooks/useAdminRoute";
+
 const AdminLayout = () => {
+  // Add this line to protect admin routes
+  useAdminRoute();
+  
   const location = useLocation();
   const isActive = (path: string) => {
     return location.pathname === path;

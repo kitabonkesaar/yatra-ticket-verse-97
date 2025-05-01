@@ -1,41 +1,15 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import DesktopNav from "./navbar/DesktopNav";
 import AuthButtons from "./navbar/AuthButtons";
 import MobileNav from "./navbar/MobileNav";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        // Set up auth state change listener first
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          (_, session) => {
-            setUser(session?.user || null);
-          }
-        );
-        
-        // Then check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user || null);
-        setLoading(false);
-        
-        return () => subscription.unsubscribe();
-      } catch (error) {
-        console.error("Error fetching session:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const { user, loading } = useAuth();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);

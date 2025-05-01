@@ -1,11 +1,9 @@
 
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { User, LogOut, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -15,14 +13,12 @@ interface MobileNavProps {
 }
 
 const MobileNav = ({ isOpen, user, loading, onItemClick }: MobileNavProps) => {
-  const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      toast.success("Logged out successfully");
+      await signOut();
       onItemClick();
-      navigate("/");
     } catch (error) {
       console.error("Error signing out:", error);
       toast.error("Failed to log out");
@@ -87,9 +83,7 @@ const MobileNav = ({ isOpen, user, loading, onItemClick }: MobileNavProps) => {
               My Bookings
             </Link>
             <button
-              onClick={() => {
-                handleLogout();
-              }}
+              onClick={handleLogout}
               className="flex w-full items-center px-3 py-2 text-base font-medium text-gray-700 rounded-md hover:text-bharat-orange hover:bg-gray-100"
             >
               <LogOut className="w-5 h-5 mr-2" />
