@@ -1,4 +1,3 @@
-
 import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -40,7 +39,7 @@ const tripPackageFormSchema = z.object({
       highlight: z.string(),
       details: z.string()
     })
-  ).optional()
+  ).default([])
 });
 type TripPackageFormValues = z.infer<typeof tripPackageFormSchema>;
 interface TripPackageFormDialogProps {
@@ -204,18 +203,22 @@ export function TripPackageFormDialog({
                   </FormControl>
                 </FormItem>} />
 
-            <FormField control={form.control} name="itinerary" render={({
-            field
-          }) => <FormItem>
+            <FormField 
+              control={form.control} 
+              name="itinerary" 
+              render={({ field }) => (
+                <FormItem>
                   <FormLabel>Itinerary</FormLabel>
                   <FormControl>
                     <ItineraryFormField 
                       value={field.value || []} 
-                      onChange={(newItinerary: ItineraryItem[]) => field.onChange(newItinerary)} 
+                      onChange={field.onChange} 
                     />
                   </FormControl>
                   <FormMessage />
-                </FormItem>} />
+                </FormItem>
+              )} 
+            />
 
             <DialogFooter>
               <DialogClose asChild>
