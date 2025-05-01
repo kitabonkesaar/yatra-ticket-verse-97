@@ -1,9 +1,6 @@
-
 import { Link } from "react-router-dom";
-
 const Footer = () => {
-  return (
-    <footer className="bg-gray-900 text-white">
+  return <footer className="bg-gray-900 text-white">
       <div className="container-custom py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Company Info */}
@@ -64,10 +61,10 @@ const Footer = () => {
                 <Link to="/trips/badrinath" className="text-gray-300 hover:text-white transition-colors">Badrinath</Link>
               </li>
               <li>
-                <Link to="/trips/nepal" className="text-gray-300 hover:text-white transition-colors">Nepal</Link>
+                <Link to="/trips/nepal" className="text-gray-300 hover:text-white transition-colors">Darjeeling and Gangtok</Link>
               </li>
               <li>
-                <Link to="/trips/varanasi" className="text-gray-300 hover:text-white transition-colors">Varanasi</Link>
+                <Link to="/trips/varanasi" className="text-gray-300 hover:text-white transition-colors">Gangtok</Link>
               </li>
             </ul>
           </div>
@@ -75,8 +72,8 @@ const Footer = () => {
           {/* Contact */}
           <div>
             <h3 className="text-lg font-bold mb-4">Contact Us</h3>
-            <p className="text-gray-300 mb-2">123 Pilgrim Road, Delhi</p>
-            <p className="text-gray-300 mb-2">+91 98765 43210</p>
+            <p className="text-gray-300 mb-2">Near FM Golei , Balasore 756001</p>
+            <p className="text-gray-300 mb-2">+91 8018958872</p>
             <p className="text-gray-300 mb-4">info@bharatyatra.com</p>
             <Link to="/contact" className="inline-block text-sm font-medium text-bharat-orange hover:underline">
               Send us a message
@@ -90,8 +87,6 @@ const Footer = () => {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;

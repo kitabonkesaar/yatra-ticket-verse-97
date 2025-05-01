@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -11,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 import { toast } from "sonner";
-
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -21,25 +19,22 @@ const ContactPage = () => {
     message: ""
   });
   const [loading, setLoading] = useState(false);
-  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-  
   const handleSelectChange = (value: string) => {
     setFormData({
       ...formData,
       subject: value
     });
   };
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       toast.success("Message sent successfully! We'll get back to you shortly.");
@@ -53,19 +48,13 @@ const ContactPage = () => {
       });
     }, 1500);
   };
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
         <div className="relative bg-gray-900 text-white">
           <div className="absolute inset-0">
-            <img
-              src="https://images.unsplash.com/photo-1586810724476-c294fb7ac01b?auto=format&fit=crop&q=80"
-              alt="Contact Us"
-              className="w-full h-full object-cover opacity-40"
-            />
+            <img src="https://images.unsplash.com/photo-1586810724476-c294fb7ac01b?auto=format&fit=crop&q=80" alt="Contact Us" className="w-full h-full object-cover opacity-40" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
           </div>
           <div className="relative container-custom py-16 md:py-24">
@@ -96,8 +85,8 @@ const ContactPage = () => {
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900">Phone</h3>
-                        <p className="text-gray-600 mt-1">+91 98765 43210</p>
-                        <p className="text-gray-600">+91 89765 12340</p>
+                        <p className="text-gray-600 mt-1">+91 8018958872</p>
+                        <p className="text-gray-600">+91 8249529220</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -131,16 +120,7 @@ const ContactPage = () => {
                   </Card>
                   
                   <Card className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 flex items-start space-x-4">
-                      <div className="rounded-full bg-bharat-orange/10 p-3 mt-1">
-                        <Clock className="h-5 w-5 text-bharat-orange" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">Office Hours</h3>
-                        <p className="text-gray-600 mt-1">Monday - Saturday: 9:00 AM - 7:00 PM</p>
-                        <p className="text-gray-600">Sunday: 10:00 AM - 2:00 PM</p>
-                      </div>
-                    </CardContent>
+                    
                   </Card>
                 </div>
               </div>
@@ -156,41 +136,19 @@ const ContactPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Full Name</Label>
-                          <Input
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Your full name"
-                            required
-                          />
+                          <Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Your full name" required />
                         </div>
                         
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Your email address"
-                            required
-                          />
+                          <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Your email address" required />
                         </div>
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="phone">Phone Number</Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            placeholder="Your phone number"
-                            required
-                          />
+                          <Input id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Your phone number" required />
                         </div>
                         
                         <div className="space-y-2">
@@ -212,29 +170,13 @@ const ContactPage = () => {
                       
                       <div className="space-y-2">
                         <Label htmlFor="message">Your Message</Label>
-                        <Textarea
-                          id="message"
-                          name="message"
-                          value={formData.message}
-                          onChange={handleChange}
-                          placeholder="How can we help you?"
-                          rows={5}
-                          required
-                        />
+                        <Textarea id="message" name="message" value={formData.message} onChange={handleChange} placeholder="How can we help you?" rows={5} required />
                       </div>
                       
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-bharat-orange hover:bg-bharat-orange/90"
-                        disabled={loading}
-                      >
-                        {loading ? (
-                          <span className="flex items-center">Sending message...</span>
-                        ) : (
-                          <span className="flex items-center">
+                      <Button type="submit" className="w-full bg-bharat-orange hover:bg-bharat-orange/90" disabled={loading}>
+                        {loading ? <span className="flex items-center">Sending message...</span> : <span className="flex items-center">
                             Send Message <Send className="ml-2 h-4 w-4" />
-                          </span>
-                        )}
+                          </span>}
                       </Button>
                     </form>
                   </CardContent>
@@ -244,16 +186,9 @@ const ContactPage = () => {
                 <div className="mt-8">
                   <h3 className="text-lg font-medium mb-4">Our Location</h3>
                   <div className="h-[300px] bg-gray-200 rounded-lg overflow-hidden">
-                    <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.693298517787!2d77.1830160748932!3d28.642911982120222!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d02a257b3ad95%3A0x9afd3e6013cd6cf8!2sKarol%20Bagh%2C%20New%20Delhi%2C%20Delhi!5e0!3m2!1sen!2sin!4v1682315825222!5m2!1sen!2sin"
-                      width="100%"
-                      height="300"
-                      style={{ border: 0 }}
-                      allowFullScreen={true}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Bharat Yatra Office Location"
-                    />
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.693298517787!2d77.1830160748932!3d28.642911982120222!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d02a257b3ad95%3A0x9afd3e6013cd6cf8!2sKarol%20Bagh%2C%20New%20Delhi%2C%20Delhi!5e0!3m2!1sen!2sin!4v1682315825222!5m2!1sen!2sin" width="100%" height="300" style={{
+                    border: 0
+                  }} allowFullScreen={true} loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Bharat Yatra Office Location" />
                   </div>
                 </div>
               </div>
@@ -299,8 +234,6 @@ const ContactPage = () => {
       </main>
       <Footer />
       <WhatsAppButton />
-    </div>
-  );
+    </div>;
 };
-
 export default ContactPage;
