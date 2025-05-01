@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +14,13 @@ interface ItineraryFormFieldProps {
 const ItineraryFormField = ({ value, onChange }: ItineraryFormFieldProps) => {
   const addItineraryItem = () => {
     const nextDay = value.length > 0 ? Math.max(...value.map(item => item.day)) + 1 : 1;
-    onChange([
-      ...value,
-      // Create a new ItineraryItem with all required properties
-      { day: nextDay, highlight: "", details: "" }
-    ]);
+    // Create a properly typed new item
+    const newItem: ItineraryItem = { 
+      day: nextDay, 
+      highlight: "", 
+      details: "" 
+    };
+    onChange([...value, newItem]);
   };
 
   const removeItineraryItem = (index: number) => {
@@ -27,15 +30,22 @@ const ItineraryFormField = ({ value, onChange }: ItineraryFormFieldProps) => {
   };
 
   const updateItineraryItem = (index: number, field: keyof ItineraryItem, newValue: string | number) => {
-    const newItems = [...value];
-    newItems[index] = { ...newItems[index], [field]: newValue };
+    const newItems = [...value] as ItineraryItem[];
+    
+    // Create a new item with the updated field
+    const updatedItem: ItineraryItem = { ...newItems[index] };
     
     // Ensure day is always a positive number
     if (field === 'day') {
       const dayValue = typeof newValue === 'number' ? newValue : parseInt(newValue as string);
-      newItems[index].day = isNaN(dayValue) || dayValue < 1 ? 1 : dayValue;
+      updatedItem.day = isNaN(dayValue) || dayValue < 1 ? 1 : dayValue;
+    } else {
+      // For other string fields
+      updatedItem[field] = newValue as any;
     }
     
+    // Update the array
+    newItems[index] = updatedItem;
     onChange(newItems);
   };
 
