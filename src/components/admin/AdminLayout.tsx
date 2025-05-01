@@ -17,7 +17,9 @@ import {
   FileText, 
   Settings, 
   LogOut,
-  BarChart4
+  BarChart4,
+  Car,
+  Plane
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -61,6 +63,22 @@ const AdminLayout = () => {
                   <Link to="/admin/users" className="flex items-center">
                     <Users className="h-5 w-5" />
                     <span>Users</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/admin/vehicles")}>
+                  <Link to="/admin/vehicles" className="flex items-center">
+                    <Car className="h-5 w-5" />
+                    <span>Vehicles</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/admin/trip-packages")}>
+                  <Link to="/admin/trip-packages" className="flex items-center">
+                    <Plane className="h-5 w-5" />
+                    <span>Trip Packages</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

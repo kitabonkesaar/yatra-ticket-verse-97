@@ -17,6 +17,8 @@ import ContactPage from "./pages/ContactPage";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import UsersManagement from "./pages/admin/UsersManagement";
+import VehiclesManagement from "./pages/admin/VehiclesManagement";
+import TripPackagesManagement from "./pages/admin/TripPackagesManagement";
 import BookingsManagement from "./pages/admin/BookingsManagement";
 import SettingsPage from "./pages/admin/SettingsPage";
 import AnalyticsPage from "./pages/admin/AnalyticsPage";
@@ -44,6 +46,8 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="users" element={<UsersManagement />} />
+            <Route path="vehicles" element={<VehiclesManagement />} />
+            <Route path="trip-packages" element={<TripPackagesManagement />} />
             <Route path="bookings" element={<BookingsManagement />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="settings" element={<SettingsPage />} />
