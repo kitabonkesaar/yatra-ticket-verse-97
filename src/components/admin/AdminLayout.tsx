@@ -1,38 +1,15 @@
-
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarFooter, 
-  SidebarHeader, 
-  SidebarMenu, 
-  SidebarMenuItem, 
-  SidebarMenuButton,
-  SidebarProvider
-} from "@/components/ui/sidebar";
-import { 
-  LayoutDashboard, 
-  Users, 
-  FileText, 
-  Settings, 
-  LogOut,
-  BarChart4,
-  Car,
-  Plane
-} from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from "@/components/ui/sidebar";
+import { LayoutDashboard, Users, FileText, Settings, LogOut, BarChart4, Car, Plane } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 const AdminLayout = () => {
   const location = useLocation();
-  
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="flex min-h-screen w-full bg-gray-50">
         <Sidebar className="border-r">
           <SidebarHeader>
@@ -45,7 +22,7 @@ const AdminLayout = () => {
               </div>
             </div>
           </SidebarHeader>
-          <SidebarContent>
+          <SidebarContent className="px-[23px] py-[5px]">
             <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
               Main Menu
             </div>
@@ -136,8 +113,6 @@ const AdminLayout = () => {
           </div>
         </main>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 };
-
 export default AdminLayout;
