@@ -11,6 +11,7 @@ import TripDetails from "./pages/TripDetails";
 import VehicleDetails from "./pages/VehicleDetails";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ProfilePage from "./pages/ProfilePage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 
@@ -44,6 +45,7 @@ const App = () => {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>

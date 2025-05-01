@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, Ticket } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -17,15 +17,17 @@ const Navbar = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user || null);
-        setLoading(false);
-        
+        // Set up auth state change listener first
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (_, session) => {
             setUser(session?.user || null);
           }
         );
+        
+        // Then check for existing session
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
+        setLoading(false);
         
         return () => subscription.unsubscribe();
       } catch (error) {
@@ -104,6 +106,12 @@ const Navbar = () => {
                     <Link to="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      <Ticket className="mr-2 h-4 w-4" />
+                      <span>My Bookings</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
@@ -185,6 +193,14 @@ const Navbar = () => {
                 >
                   <User className="w-5 h-5 mr-2" />
                   Profile
+                </Link>
+                <Link
+                  to="/profile"
+                  className="flex items-center px-3 py-2 text-base font-medium text-gray-700 rounded-md hover:text-bharat-orange hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Ticket className="w-5 h-5 mr-2" />
+                  My Bookings
                 </Link>
                 <button
                   onClick={() => {
