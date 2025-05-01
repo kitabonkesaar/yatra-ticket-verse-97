@@ -30,6 +30,13 @@ const ItineraryFormField = ({ value, onChange }: ItineraryFormFieldProps) => {
   const updateItineraryItem = (index: number, field: keyof ItineraryItem, newValue: string | number) => {
     const newItems = [...value];
     newItems[index] = { ...newItems[index], [field]: newValue };
+    
+    // Ensure day is always a positive number
+    if (field === 'day') {
+      const dayValue = typeof newValue === 'number' ? newValue : parseInt(newValue as string);
+      newItems[index].day = isNaN(dayValue) || dayValue < 1 ? 1 : dayValue;
+    }
+    
     onChange(newItems);
   };
 

@@ -68,9 +68,21 @@ export function TripPackageFormDialog({
   },
   title
 }: TripPackageFormDialogProps) {
+  // Ensure defaultValues.itinerary is properly typed as ItineraryItem[]
+  const formDefaultValues = {
+    ...defaultValues,
+    itinerary: defaultValues.itinerary && defaultValues.itinerary.length > 0 
+      ? defaultValues.itinerary.map(item => ({
+          day: typeof item.day === 'number' ? item.day : 1,
+          highlight: item.highlight || '',
+          details: item.details || ''
+        }))
+      : []
+  };
+
   const form = useForm<TripPackageFormValues>({
     resolver: zodResolver(tripPackageFormSchema),
-    defaultValues
+    defaultValues: formDefaultValues
   });
   function handleSubmit(values: TripPackageFormValues) {
     onSubmit(values);
