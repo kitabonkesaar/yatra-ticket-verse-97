@@ -47,9 +47,9 @@ export interface TripPackage {
   itinerary?: ItineraryItem[];
 }
 
-// Booking interface
+// Booking interface - updated id to be string type to match Supabase UUID
 export interface Booking {
-  id: number;
+  id: string;
   customer: string;
   customerEmail: string;
   customerImage?: string;
@@ -58,6 +58,7 @@ export interface Booking {
   passengers: number;
   status: "Confirmed" | "Pending" | "Cancelled";
   total: number;
-  paymentType: "Online" | "Cash";
+  paymentType: "Online" | "Cash" | "Advance";
   notes?: string;
+  rawData?: any; // Added to store the original data from Supabase
 }

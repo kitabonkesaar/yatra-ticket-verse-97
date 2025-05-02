@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Table, 
@@ -133,49 +132,51 @@ const BookingsManagement = () => {
     }
   };
 
-  const sortedBookings = [...bookings].sort((a, b) => {
-    if (!sortField) return 0;
-    
-    const fieldA = a[sortField as keyof typeof a];
-    const fieldB = b[sortField as keyof typeof b];
-    
-    if (fieldA instanceof Date && fieldB instanceof Date) {
-      return sortDirection === "asc" 
-        ? fieldA.getTime() - fieldB.getTime() 
-        : fieldB.getTime() - fieldA.getTime();
-    }
-    
-    if (typeof fieldA === 'string' && typeof fieldB === 'string') {
-      return sortDirection === "asc" 
-        ? fieldA.localeCompare(fieldB) 
-        : fieldB.localeCompare(fieldA);
-    }
-    
-    // For numeric fields
-    return sortDirection === "asc" 
-      ? Number(fieldA) - Number(fieldB) 
-      : Number(fieldB) - Number(fieldA);
-  });
-
-  const filteredBookings = sortedBookings.filter(booking => 
-    booking.customer.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    booking.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    booking.customerEmail.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const getSortIcon = (field: string) => {
+  function getSortIcon(field: string) {
     if (sortField !== field) return null;
     return sortDirection === "asc" ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
-  };
+  }
 
-  const getStatusBadgeColor = (status: string) => {
+  function getStatusBadgeColor(status: string) {
     switch (status) {
       case "Confirmed": return "bg-green-100 text-green-800";
       case "Pending": return "bg-yellow-100 text-yellow-800";
       case "Cancelled": return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
     }
-  };
+  }
+
+  function filteredBookings() {
+    const sorted = [...bookings].sort((a, b) => {
+      if (!sortField) return 0;
+      
+      const fieldA = a[sortField as keyof typeof a];
+      const fieldB = b[sortField as keyof typeof b];
+      
+      if (fieldA instanceof Date && fieldB instanceof Date) {
+        return sortDirection === "asc" 
+          ? fieldA.getTime() - fieldB.getTime() 
+          : fieldB.getTime() - fieldA.getTime();
+      }
+      
+      if (typeof fieldA === 'string' && typeof fieldB === 'string') {
+        return sortDirection === "asc" 
+          ? fieldA.localeCompare(fieldB) 
+          : fieldB.localeCompare(fieldA);
+      }
+      
+      // For numeric fields
+      return sortDirection === "asc" 
+        ? Number(fieldA) - Number(fieldB) 
+        : Number(fieldB) - Number(fieldA);
+    });
+
+    return sorted.filter(booking => 
+      booking.customer.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      booking.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.customerEmail.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
 
   const handleAddBooking = () => {
     setSelectedBooking(null);
@@ -223,7 +224,7 @@ const BookingsManagement = () => {
       
       // Add to local state
       const newBooking: Booking = {
-        id: bookingData.id,
+        id: bookingData.id, // Now correctly typed as string
         customer: values.customer,
         customerEmail: values.customerEmail,
         customerImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(values.customer)}`,
@@ -351,7 +352,7 @@ const BookingsManagement = () => {
                 ) : filteredBookings.length > 0 ? (
                   filteredBookings.map((booking) => (
                     <TableRow key={booking.id}>
-                      <TableCell>#{booking.id.substring(0, 5)}</TableCell>
+                      <TableCell>#{typeof booking.id === 'string' ? booking.id.substring(0, 5) : booking.id.toString().substring(0, 5)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Avatar className="h-8 w-8">
