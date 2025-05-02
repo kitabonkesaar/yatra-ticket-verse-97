@@ -3,17 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-
-type AuthContextType = {
-  session: Session | null;
-  user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, metadata?: any) => Promise<void>;
-  signOut: () => Promise<void>;
-  isAdmin: boolean;
-};
+import { AuthContextType } from "@/types/auth";
+import { signInWithEmail, signUpWithEmail, signOut as authSignOut, checkIsAdmin } from "@/services/authService";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -31,12 +22,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
-        // Check if user is admin based on email (demo only) or metadata
+        // Check admin status when session changes
         if (newSession?.user) {
-          const isAdminByEmail = newSession.user.email === "admin@bharatyatra.com";
-          const isAdminByMetadata = newSession.user.user_metadata?.role === "admin";
-          
-          setIsAdmin(isAdminByEmail || isAdminByMetadata);
+          setIsAdmin(checkIsAdmin(newSession.user));
         } else {
           setIsAdmin(false);
         }
@@ -48,12 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Check if user is admin based on email (demo only) or metadata
+      // Check admin status on initial load
       if (currentSession?.user) {
-        const isAdminByEmail = currentSession.user.email === "admin@bharatyatra.com";
-        const isAdminByMetadata = currentSession.user.user_metadata?.role === "admin";
-        
-        setIsAdmin(isAdminByEmail || isAdminByMetadata);
+        setIsAdmin(checkIsAdmin(currentSession.user));
       }
       
       setLoading(false);
@@ -66,14 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string): Promise<void> => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-      
-      toast.success("Logged in successfully!");
+      await signInWithEmail(email, password);
       navigate("/");
     } catch (error: any) {
       toast.error(error.message || "Error signing in");
@@ -83,29 +61,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, metadata = {}): Promise<void> => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: metadata,
-        },
-      });
-
-      if (error) throw error;
-      
-      toast.success("Account created successfully! Please check your email.");
+      await signUpWithEmail(email, password, metadata);
     } catch (error: any) {
       toast.error(error.message || "Error signing up");
       throw error;
     }
   };
 
-  const signOut = async (): Promise<void> => {
+  const handleSignOut = async (): Promise<void> => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast.success("Logged out successfully");
+      await authSignOut();
       navigate("/");
     } catch (error: any) {
       toast.error(error.message || "Error signing out");
@@ -118,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     signIn,
     signUp,
-    signOut,
+    signOut: handleSignOut,
     isAdmin,
   };
 
@@ -132,3 +97,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+import { toast } from "sonner";
