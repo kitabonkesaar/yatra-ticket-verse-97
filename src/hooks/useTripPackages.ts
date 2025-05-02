@@ -1,86 +1,67 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TripPackage } from "@/types/admin";
-import { toast } from "@/hooks/use-toast";
-
-// Mock data for trip packages - in a real app, this would come from your backend
-const mockTripPackages: TripPackage[] = [
-  {
-    id: "1",
-    name: "Golden Triangle Tour",
-    destination: "Delhi-Agra-Jaipur",
-    duration: "6 days 5 nights",
-    price: 25000,
-    status: "Active",
-    startDate: "2025-06-15",
-    endDate: "2025-06-20",
-    description: "Experience the rich culture and heritage of India's most famous cities",
-    imageUrl: "https://example.com/golden-triangle.jpg",
-    featured: true,
-    itinerary: [
-      {
-        day: 1,
-        highlight: "Arrival in Delhi",
-        details: "Arrive at Delhi airport, transfer to hotel. Evening visit to local markets."
-      },
-      {
-        day: 2,
-        highlight: "Delhi City Tour",
-        details: "Full day sightseeing of Old and New Delhi including Red Fort, Jama Masjid, and Qutub Minar."
-      },
-      {
-        day: 3,
-        highlight: "Delhi to Agra",
-        details: "Morning drive to Agra. Afternoon visit to Taj Mahal and Agra Fort."
-      }
-    ]
-  },
-  {
-    id: "2",
-    name: "Kashmir Valley",
-    destination: "Srinagar-Gulmarg-Pahalgam",
-    duration: "5 days 4 nights",
-    price: 30000,
-    status: "Active",
-    description: "Explore the paradise on earth with beautiful landscapes and serene lakes",
-    imageUrl: "https://example.com/kashmir.jpg",
-    featured: true,
-    itinerary: [
-      {
-        day: 1,
-        highlight: "Arrival in Srinagar",
-        details: "Arrive at Srinagar airport, transfer to houseboat. Evening Shikara ride on Dal Lake."
-      },
-      {
-        day: 2,
-        highlight: "Gulmarg Excursion",
-        details: "Full day trip to Gulmarg. Enjoy gondola ride and panoramic views."
-      }
-    ]
-  },
-  {
-    id: "3",
-    name: "Kerala Backwaters",
-    destination: "Kochi-Alleppey-Kovalam",
-    duration: "7 days 6 nights",
-    price: 35000,
-    status: "Inactive",
-    description: "Relax in the serene backwaters and beautiful beaches of God's own country",
-    imageUrl: "https://example.com/kerala.jpg",
-    featured: false,
-    itinerary: []
-  },
-];
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 export const useTripPackages = () => {
-  const [tripPackages, setTripPackages] = useState<TripPackage[]>(mockTripPackages);
+  const [tripPackages, setTripPackages] = useState<TripPackage[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPackage, setSelectedPackage] = useState<TripPackage | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [viewItineraryDialogOpen, setViewItineraryDialogOpen] = useState(false);
+
+  // Fetch trip packages from Supabase
+  useEffect(() => {
+    fetchTripPackages();
+  }, []);
+
+  const fetchTripPackages = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('trip_packages')
+        .select('*');
+
+      if (error) {
+        throw error;
+      }
+
+      // Transform the data to match our TripPackage type
+      const formattedPackages: TripPackage[] = data.map((pkg: any) => ({
+        id: pkg.id,
+        name: pkg.name,
+        destination: pkg.destination,
+        duration: pkg.duration,
+        price: pkg.price,
+        status: pkg.status as "Active" | "Inactive",
+        startDate: pkg.start_date || undefined,
+        endDate: pkg.end_date || undefined,
+        description: pkg.description || undefined,
+        imageUrl: pkg.image_url || undefined,
+        featured: pkg.featured,
+        itinerary: Array.isArray((pkg.itinerary as Json)) 
+          ? (pkg.itinerary as any[]).map(item => ({
+              day: item.day,
+              highlight: item.highlight,
+              details: item.details
+            }))
+          : []
+      }));
+
+      setTripPackages(formattedPackages);
+    } catch (error) {
+      console.error("Error fetching trip packages:", error);
+      toast("Failed to load trip packages");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredPackages = tripPackages.filter(pkg => 
     pkg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -110,35 +91,82 @@ export const useTripPackages = () => {
     setViewItineraryDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedPackage) {
-      setTripPackages(tripPackages.filter(pkg => pkg.id !== selectedPackage.id));
-      toast({
-        title: "Trip package deleted",
-        description: `${selectedPackage.name} has been removed.`,
-      });
-      setDeleteDialogOpen(false);
+      try {
+        const { error } = await supabase
+          .from('trip_packages')
+          .delete()
+          .eq('id', selectedPackage.id);
+
+        if (error) throw error;
+
+        setTripPackages(tripPackages.filter(pkg => pkg.id !== selectedPackage.id));
+        toast("Trip package deleted successfully");
+      } catch (error) {
+        console.error("Error deleting trip package:", error);
+        toast("Failed to delete trip package");
+      } finally {
+        setDeleteDialogOpen(false);
+      }
     }
   };
 
-  const handleSubmit = (values: Omit<TripPackage, "id">) => {
-    if (isEditing && selectedPackage) {
-      setTripPackages(tripPackages.map(pkg => 
-        pkg.id === selectedPackage.id ? { ...values, id: selectedPackage.id } : pkg
-      ));
-      toast({
-        title: "Trip package updated",
-        description: `${values.name} has been updated.`,
-      });
-    } else {
-      // Generate a string ID
-      const highestId = Math.max(0, ...tripPackages.map(pkg => parseInt(pkg.id)));
-      const newId = String(highestId + 1);
-      setTripPackages([...tripPackages, { ...values, id: newId }]);
-      toast({
-        title: "Trip package added",
-        description: `${values.name} has been added to the offerings.`,
-      });
+  const handleSubmit = async (values: Omit<TripPackage, "id">) => {
+    try {
+      if (isEditing && selectedPackage) {
+        // Map the values to Supabase column names
+        const { error } = await supabase
+          .from('trip_packages')
+          .update({
+            name: values.name,
+            destination: values.destination,
+            duration: values.duration,
+            price: values.price,
+            status: values.status,
+            start_date: values.startDate || null,
+            end_date: values.endDate || null,
+            description: values.description || null,
+            image_url: values.imageUrl || null,
+            featured: values.featured,
+            itinerary: values.itinerary || []
+          })
+          .eq('id', selectedPackage.id);
+
+        if (error) throw error;
+
+        // Refresh trip packages
+        await fetchTripPackages();
+        toast("Trip package updated successfully");
+      } else {
+        // Add new trip package
+        const { error } = await supabase
+          .from('trip_packages')
+          .insert({
+            name: values.name,
+            destination: values.destination,
+            duration: values.duration,
+            price: values.price,
+            status: values.status,
+            start_date: values.startDate || null,
+            end_date: values.endDate || null,
+            description: values.description || null,
+            image_url: values.imageUrl || null,
+            featured: values.featured,
+            itinerary: values.itinerary || []
+          });
+
+        if (error) throw error;
+
+        // Refresh trip packages
+        await fetchTripPackages();
+        toast("Trip package added successfully");
+      }
+
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Error saving trip package:", error);
+      toast("Failed to save trip package");
     }
   };
 
@@ -149,6 +177,7 @@ export const useTripPackages = () => {
     setSearchTerm,
     selectedPackage,
     isEditing,
+    loading,
     dialogOpen,
     setDialogOpen,
     deleteDialogOpen,

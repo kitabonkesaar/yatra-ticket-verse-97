@@ -85,7 +85,7 @@ export const updateUser = async (user: User): Promise<void> => {
   const { id, name, phone, role } = user;
   
   // Convert phone to number if it's a string since Supabase expects a number
-  const phoneNumber = phone ? parseFloat(phone) : null;
+  const phoneNumber = phone && phone !== 'N/A' ? parseFloat(phone) : null;
   
   const updateData = { 
     name, 

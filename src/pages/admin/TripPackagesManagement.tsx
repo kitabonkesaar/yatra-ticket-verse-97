@@ -8,6 +8,7 @@ import { useTripPackages } from "@/hooks/useTripPackages";
 import TripPackageTable from "@/components/admin/trips/TripPackageTable";
 import DeleteTripDialog from "@/components/admin/trips/DeleteTripDialog";
 import ViewItineraryDialog from "@/components/admin/trips/ViewItineraryDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TripPackagesManagement = () => {
   const {
@@ -16,6 +17,7 @@ const TripPackagesManagement = () => {
     setSearchTerm,
     selectedPackage,
     isEditing,
+    loading,
     dialogOpen,
     setDialogOpen,
     deleteDialogOpen,
@@ -49,12 +51,19 @@ const TripPackagesManagement = () => {
         />
       </div>
 
-      <TripPackageTable
-        packages={filteredPackages}
-        onEdit={handleEditPackage}
-        onDelete={handleDeletePackage}
-        onViewItinerary={viewItinerary}
-      />
+      {loading ? (
+        <div className="space-y-4">
+          <Skeleton className="h-[50px] w-full" />
+          <Skeleton className="h-[500px] w-full" />
+        </div>
+      ) : (
+        <TripPackageTable
+          packages={filteredPackages}
+          onEdit={handleEditPackage}
+          onDelete={handleDeletePackage}
+          onViewItinerary={viewItinerary}
+        />
+      )}
 
       <TripPackageFormDialog
         open={dialogOpen}
