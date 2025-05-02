@@ -40,12 +40,15 @@ export const fetchUsers = async (): Promise<User[]> => {
 export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
   const { name, phone, role, status } = userData;
   
+  // Convert phone to number if it's a string since Supabase expects a number
+  const phoneNumber = phone ? parseFloat(phone) : null;
+  
   // Insert into profiles table instead of users table
   const { data, error } = await supabase
     .from('profiles')
     .insert({
       name,
-      phone: phone, 
+      phone: phoneNumber, 
       role,
       // Status is not in the profiles table, so we omit it
     })
@@ -75,7 +78,15 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
 export const updateUser = async (user: User): Promise<void> => {
   // Extract only the fields that should be updated
   const { id, name, phone, role } = user;
-  const updateData = { name, phone, role };
+  
+  // Convert phone to number if it's a string since Supabase expects a number
+  const phoneNumber = phone ? parseFloat(phone) : null;
+  
+  const updateData = { 
+    name, 
+    phone: phoneNumber, 
+    role 
+  };
   
   const { error } = await supabase
     .from('profiles')
