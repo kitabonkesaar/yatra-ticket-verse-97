@@ -22,8 +22,8 @@ export const fetchUsers = async (): Promise<User[]> => {
     name: user.name,
     email: user.email || `${user.id}@example.com`, // Email might not be available in the table
     phone: user.phone,
-    role: user.role,
-    status: user.status,
+    role: user.role as "Customer" | "Admin",
+    status: user.status as "Active" | "Inactive",
     lastActive: user.updated_at || user.created_at,
     image: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
   }));
@@ -35,7 +35,12 @@ export const fetchUsers = async (): Promise<User[]> => {
 export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
   const { data, error } = await supabase
     .from('users')
-    .insert([userData])
+    .insert([{
+      name: userData.name,
+      phone: userData.phone,
+      role: userData.role,
+      status: userData.status
+    }])
     .select()
     .single();
 
@@ -49,8 +54,8 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
     name: data.name,
     email: data.email || `${data.id}@example.com`,
     phone: data.phone,
-    role: data.role,
-    status: data.status,
+    role: data.role as "Customer" | "Admin",
+    status: data.status as "Active" | "Inactive",
     lastActive: data.updated_at || data.created_at,
     image: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`
   };
@@ -61,7 +66,7 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
  */
 export const updateUser = async (user: User): Promise<void> => {
   // Extract only the fields that should be updated
-  const { id, name, email, phone, role, status } = user;
+  const { id, name, phone, role, status } = user;
   const updateData = { name, phone, role, status };
   
   const { error } = await supabase
@@ -77,7 +82,7 @@ export const updateUser = async (user: User): Promise<void> => {
 /**
  * Deletes a user from the database
  */
-export const deleteUser = async (id: number | string): Promise<void> => {
+export const deleteUser = async (id: string): Promise<void> => {
   const { error } = await supabase
     .from('users')
     .delete()
