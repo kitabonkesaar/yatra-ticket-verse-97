@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@/types/admin";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 /**
  * Fetches all users from the database
@@ -40,6 +41,9 @@ export const fetchUsers = async (): Promise<User[]> => {
 export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
   const { name, phone, role, status } = userData;
   
+  // Generate a UUID for the new user
+  const newId = crypto.randomUUID();
+  
   // Convert phone to number if it's a string since Supabase expects a number
   const phoneNumber = phone ? parseFloat(phone) : null;
   
@@ -47,6 +51,7 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
   const { data, error } = await supabase
     .from('profiles')
     .insert({
+      id: newId,
       name,
       phone: phoneNumber, 
       role,
