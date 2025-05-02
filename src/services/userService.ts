@@ -2,117 +2,99 @@
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@/types/admin";
 import { toast } from "sonner";
-import { Json } from "@/integrations/supabase/types";
 
 /**
- * Fetches all users from the database
+ * Fetches all users from Supabase
  */
 export const fetchUsers = async (): Promise<User[]> => {
-  // Fetch users from the auth.users view via the profiles table
-  // since we can't directly query auth.users from client-side code
-  const { data: profiles, error } = await supabase
-    .from('profiles')
-    .select('id, name, phone, role, updated_at');
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*');
 
-  if (error) {
-    throw new Error(error.message);
-  }
+    if (error) {
+      throw error;
+    }
 
-  if (!profiles) {
+    return data as User[];
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    toast("Failed to load users");
     return [];
   }
-
-  // Format the users data to match our User type
-  return profiles.map((profile: any) => ({
-    id: profile.id,
-    name: profile.name || 'Anonymous User',
-    email: `${profile.id.slice(0, 8)}@example.com`, // Email might not be available in the table
-    phone: profile.phone?.toString() || 'N/A',
-    role: profile.role as "Customer" | "Admin",
-    status: "Active", // Assume all profiles are active
-    lastActive: profile.updated_at || new Date().toISOString(),
-    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=random`
-  }));
 };
 
 /**
- * Creates a new user in the database
+ * Creates a new user
  */
-export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
-  const { name, phone, role, status } = userData;
-  
-  // Generate a UUID for the new user
-  const newId = crypto.randomUUID();
-  
-  // Convert phone to number if it's a string since Supabase expects a number
-  const phoneNumber = phone && phone !== 'N/A' ? parseFloat(phone) : null;
-  
-  // Insert into profiles table instead of users table
-  const { data, error } = await supabase
-    .from('profiles')
-    .insert({
-      id: newId,
-      name,
-      phone: phoneNumber, 
-      role,
-      // Status is not in the profiles table, so we omit it
-    })
-    .select()
-    .single();
+export const createUser = async (values: Omit<User, "id">): Promise<boolean> => {
+  try {
+    // For new users, we need to convert the phone string to a number or null
+    const phoneNumber = values.phone === "N/A" ? null : parseFloat(values.phone);
 
-  if (error) {
-    throw new Error(error.message);
-  }
+    const { error } = await supabase
+      .from('users')
+      .insert({
+        name: values.name,
+        phone: phoneNumber,
+        role: values.role,
+        status: values.status,
+      });
 
-  // Format the returned data to match our User type
-  return {
-    id: data.id,
-    name: data.name || 'Anonymous User',
-    email: `${data.id.slice(0, 8)}@example.com`,
-    phone: data.phone?.toString() || 'N/A',
-    role: data.role as "Customer" | "Admin",
-    status: status as "Active" | "Inactive", // Use the provided status since it's not in profiles
-    lastActive: data.updated_at || new Date().toISOString(),
-    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'User')}&background=random`
-  };
-};
-
-/**
- * Updates a user in the database
- */
-export const updateUser = async (user: User): Promise<void> => {
-  // Extract only the fields that should be updated
-  const { id, name, phone, role } = user;
-  
-  // Convert phone to number if it's a string since Supabase expects a number
-  const phoneNumber = phone && phone !== 'N/A' ? parseFloat(phone) : null;
-  
-  const updateData = { 
-    name, 
-    phone: phoneNumber, 
-    role 
-  };
-  
-  const { error } = await supabase
-    .from('profiles')
-    .update(updateData)
-    .eq('id', id.toString());
-
-  if (error) {
-    throw new Error(error.message);
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error("Error creating user:", error);
+    toast("Failed to create user");
+    return false;
   }
 };
 
 /**
- * Deletes a user from the database
+ * Updates an existing user
  */
-export const deleteUser = async (id: string | number): Promise<void> => {
-  const { error } = await supabase
-    .from('profiles')
-    .delete()
-    .eq('id', id.toString());
+export const updateUser = async (id: string, values: Omit<User, "id">): Promise<boolean> => {
+  try {
+    // Convert phone string to number or null
+    const phoneNumber = values.phone === "N/A" ? null : parseFloat(values.phone);
 
-  if (error) {
-    throw new Error(error.message);
+    const { error } = await supabase
+      .from('users')
+      .update({
+        name: values.name,
+        phone: phoneNumber,
+        role: values.role,
+        status: values.status,
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    toast("Failed to update user");
+    return false;
+  }
+};
+
+/**
+ * Deletes a user
+ */
+export const deleteUser = async (id: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    toast("Failed to delete user");
+    return false;
   }
 };

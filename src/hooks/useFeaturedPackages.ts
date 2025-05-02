@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { TripPackage } from '@/types/admin';
-import { Json } from '@/integrations/supabase/types';
+import { supabase } from '@/integrations/supabase/client';
+import { formatTripPackageFromDB } from '@/services/tripPackageService';
 
 export const useFeaturedPackages = () => {
   const [featuredPackages, setFeaturedPackages] = useState<TripPackage[]>([]);
@@ -24,27 +24,8 @@ export const useFeaturedPackages = () => {
           throw error;
         }
 
-        // Transform the data to match our TripPackage type
-        const formattedPackages: TripPackage[] = data.map((pkg: any) => ({
-          id: pkg.id,
-          name: pkg.name,
-          destination: pkg.destination,
-          duration: pkg.duration,
-          price: pkg.price,
-          status: pkg.status as "Active" | "Inactive",
-          startDate: pkg.start_date || undefined,
-          endDate: pkg.end_date || undefined,
-          description: pkg.description || undefined,
-          imageUrl: pkg.image_url || undefined,
-          featured: pkg.featured,
-          itinerary: Array.isArray((pkg.itinerary as Json)) 
-            ? (pkg.itinerary as any[]).map(item => ({
-                day: item.day,
-                highlight: item.highlight,
-                details: item.details
-              }))
-            : []
-        }));
+        // Use the formatTripPackageFromDB function from tripPackageService
+        const formattedPackages: TripPackage[] = data.map((pkg: any) => formatTripPackageFromDB(pkg));
 
         setFeaturedPackages(formattedPackages);
       } catch (err) {
