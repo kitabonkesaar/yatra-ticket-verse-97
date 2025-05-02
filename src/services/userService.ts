@@ -1,0 +1,89 @@
+
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@/types/admin";
+import { toast } from "sonner";
+
+/**
+ * Fetches all users from the database
+ */
+export const fetchUsers = async (): Promise<User[]> => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Format the users data to match our User type
+  return data.map((user: any) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email || `${user.id}@example.com`, // Email might not be available in the table
+    phone: user.phone,
+    role: user.role,
+    status: user.status,
+    lastActive: user.updated_at || user.created_at,
+    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
+  }));
+};
+
+/**
+ * Creates a new user in the database
+ */
+export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
+  const { data, error } = await supabase
+    .from('users')
+    .insert([userData])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Format the returned data to match our User type
+  return {
+    id: data.id,
+    name: data.name,
+    email: data.email || `${data.id}@example.com`,
+    phone: data.phone,
+    role: data.role,
+    status: data.status,
+    lastActive: data.updated_at || data.created_at,
+    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`
+  };
+};
+
+/**
+ * Updates a user in the database
+ */
+export const updateUser = async (user: User): Promise<void> => {
+  // Extract only the fields that should be updated
+  const { id, name, email, phone, role, status } = user;
+  const updateData = { name, phone, role, status };
+  
+  const { error } = await supabase
+    .from('users')
+    .update(updateData)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * Deletes a user from the database
+ */
+export const deleteUser = async (id: number | string): Promise<void> => {
+  const { error } = await supabase
+    .from('users')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
