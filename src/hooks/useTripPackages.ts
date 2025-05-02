@@ -6,7 +6,7 @@ import { toast } from "@/hooks/use-toast";
 // Mock data for trip packages - in a real app, this would come from your backend
 const mockTripPackages: TripPackage[] = [
   {
-    id: 1,
+    id: "1",
     name: "Golden Triangle Tour",
     destination: "Delhi-Agra-Jaipur",
     duration: "6 days 5 nights",
@@ -36,7 +36,7 @@ const mockTripPackages: TripPackage[] = [
     ]
   },
   {
-    id: 2,
+    id: "2",
     name: "Kashmir Valley",
     destination: "Srinagar-Gulmarg-Pahalgam",
     duration: "5 days 4 nights",
@@ -59,7 +59,7 @@ const mockTripPackages: TripPackage[] = [
     ]
   },
   {
-    id: 3,
+    id: "3",
     name: "Kerala Backwaters",
     destination: "Kochi-Alleppey-Kovalam",
     duration: "7 days 6 nights",
@@ -131,7 +131,9 @@ export const useTripPackages = () => {
         description: `${values.name} has been updated.`,
       });
     } else {
-      const newId = Math.max(0, ...tripPackages.map(pkg => pkg.id)) + 1;
+      // Generate a string ID
+      const highestId = Math.max(0, ...tripPackages.map(pkg => parseInt(pkg.id)));
+      const newId = String(highestId + 1);
       setTripPackages([...tripPackages, { ...values, id: newId }]);
       toast({
         title: "Trip package added",

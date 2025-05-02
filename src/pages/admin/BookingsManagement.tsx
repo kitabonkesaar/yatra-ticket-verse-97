@@ -13,7 +13,7 @@ import { TripPackage } from "@/types/admin";
 // Mock trip packages for the booking form
 const mockTripPackages: TripPackage[] = [
   {
-    id: 1,
+    id: "1",
     name: "Golden Triangle Tour",
     destination: "Delhi-Agra-Jaipur",
     duration: "6 days 5 nights",
@@ -22,7 +22,7 @@ const mockTripPackages: TripPackage[] = [
     featured: true,
   },
   {
-    id: 2,
+    id: "2",
     name: "Kashmir Valley",
     destination: "Srinagar-Gulmarg-Pahalgam",
     duration: "5 days 4 nights",
@@ -31,7 +31,7 @@ const mockTripPackages: TripPackage[] = [
     featured: true,
   },
   {
-    id: 3,
+    id: "3",
     name: "Kerala Backwaters",
     destination: "Kochi-Alleppey-Kovalam",
     duration: "7 days 6 nights",
