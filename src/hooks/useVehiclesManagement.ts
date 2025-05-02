@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from "react";
 import { Vehicle } from "@/types/admin";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { fetchVehicles, createVehicle, updateVehicle, deleteVehicle, ensureAdminRole } from "@/services/vehicleService";
+import { filterVehicles, checkVehicleManagementPermission } from "@/utils/vehicleUtils";
 
 export const useVehiclesManagement = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -17,70 +18,26 @@ export const useVehiclesManagement = () => {
   
   // Fetch vehicles from Supabase
   useEffect(() => {
-    fetchVehicles();
+    const loadVehicles = async () => {
+      setLoading(true);
+      const data = await fetchVehicles();
+      setVehicles(data);
+      setLoading(false);
+    };
+    
+    loadVehicles();
   }, []);
 
-  const fetchVehicles = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("vehicles")
-        .select("*")
-        .order('name');
-
-      if (error) {
-        throw error;
-      }
-
-      if (data) {
-        // Map data from Supabase to our Vehicle interface
-        const mappedData: Vehicle[] = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          type: item.type as "Car" | "Bus" | "Tempo Traveller" | "Other",
-          seats: item.seats,
-          registrationNumber: item.registration_number,
-          status: item.status as "Available" | "Booked" | "Maintenance",
-          modelYear: item.model_year,
-          imageUrl: item.image_url || undefined,
-          description: item.description || undefined
-        }));
-        
-        setVehicles(mappedData);
-      }
-    } catch (error) {
-      console.error("Error fetching vehicles:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch vehicles. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredVehicles = vehicles.filter(vehicle => 
-    vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter vehicles based on search term
+  const filteredVehicles = filterVehicles(vehicles, searchTerm);
 
   const handleAddVehicle = () => {
-    // Check if user is logged in and has admin role
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "You must be logged in to add vehicles.",
-        variant: "destructive",
-      });
-      return;
-    }
+    const { hasPermission, errorTitle, errorMessage } = checkVehicleManagementPermission(user, isAdmin);
     
-    if (!isAdmin) {
+    if (!hasPermission) {
       toast({
-        title: "Unauthorized",
-        description: "You must have admin privileges to add vehicles.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
       return;
@@ -92,20 +49,12 @@ export const useVehiclesManagement = () => {
   };
 
   const handleEditVehicle = (vehicle: Vehicle) => {
-    // Check if user is logged in and has admin role
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "You must be logged in to edit vehicles.",
-        variant: "destructive",
-      });
-      return;
-    }
+    const { hasPermission, errorTitle, errorMessage } = checkVehicleManagementPermission(user, isAdmin);
     
-    if (!isAdmin) {
+    if (!hasPermission) {
       toast({
-        title: "Unauthorized",
-        description: "You must have admin privileges to edit vehicles.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
       return;
@@ -117,20 +66,12 @@ export const useVehiclesManagement = () => {
   };
 
   const handleDeleteVehicle = (vehicle: Vehicle) => {
-    // Check if user is logged in and has admin role
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "You must be logged in to delete vehicles.",
-        variant: "destructive",
-      });
-      return;
-    }
+    const { hasPermission, errorTitle, errorMessage } = checkVehicleManagementPermission(user, isAdmin);
     
-    if (!isAdmin) {
+    if (!hasPermission) {
       toast({
-        title: "Unauthorized",
-        description: "You must have admin privileges to delete vehicles.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
       return;
@@ -144,12 +85,7 @@ export const useVehiclesManagement = () => {
     if (!selectedVehicle) return;
     
     try {
-      const { error } = await supabase
-        .from("vehicles")
-        .delete()
-        .eq('id', selectedVehicle.id);
-
-      if (error) throw error;
+      await deleteVehicle(selectedVehicle.id);
       
       // Update local state
       setVehicles(vehicles.filter(v => v.id !== selectedVehicle.id));
@@ -172,44 +108,17 @@ export const useVehiclesManagement = () => {
 
   const handleSubmit = async (values: Omit<Vehicle, "id">) => {
     try {
-      if (!user) {
-        throw new Error("You must be logged in to perform this action");
+      const { hasPermission, errorTitle, errorMessage } = checkVehicleManagementPermission(user, isAdmin);
+      
+      if (!hasPermission) {
+        throw new Error(errorMessage);
       }
       
-      if (!isAdmin) {
-        throw new Error("You must have admin privileges to perform this action");
-      }
-      
-      // Update user metadata if necessary to ensure admin role is set
-      // This is only needed if you're managing the admin role through metadata
-      const { error: metadataError } = await supabase.auth.updateUser({
-        data: { role: 'admin' }
-      });
-      
-      if (metadataError) {
-        console.warn("Unable to update user metadata:", metadataError);
-        // Continue anyway as the RLS policy might still work
-      }
+      // Try to ensure admin role is set in metadata
+      await ensureAdminRole();
       
       if (isEditing && selectedVehicle) {
-        // Map our Vehicle interface to Supabase format
-        const supabaseData = {
-          name: values.name,
-          type: values.type,
-          seats: values.seats,
-          registration_number: values.registrationNumber,
-          status: values.status,
-          model_year: values.modelYear,
-          image_url: values.imageUrl,
-          description: values.description
-        };
-        
-        const { error } = await supabase
-          .from("vehicles")
-          .update(supabaseData)
-          .eq('id', selectedVehicle.id);
-
-        if (error) throw error;
+        await updateVehicle(selectedVehicle.id, values);
           
         // Update local state
         setVehicles(vehicles.map(v => 
@@ -221,46 +130,17 @@ export const useVehiclesManagement = () => {
           description: `${values.name} has been updated.`,
         });
       } else {
-        // Map our Vehicle interface to Supabase format
-        const supabaseData = {
-          name: values.name,
-          type: values.type,
-          seats: values.seats,
-          registration_number: values.registrationNumber,
-          status: values.status,
-          model_year: values.modelYear,
-          image_url: values.imageUrl,
-          description: values.description
-        };
+        const newVehicle = await createVehicle(values);
         
-        const { data, error } = await supabase
-          .from("vehicles")
-          .insert(supabaseData)
-          .select()
-          .single();
-
-        if (error) throw error;
+        if (newVehicle) {
+          // Add to local state
+          setVehicles([...vehicles, newVehicle]);
           
-        // Map the returned Supabase data to our Vehicle interface
-        const newVehicle: Vehicle = {
-          id: data.id,
-          name: data.name,
-          type: data.type as "Car" | "Bus" | "Tempo Traveller" | "Other",
-          seats: data.seats,
-          registrationNumber: data.registration_number,
-          status: data.status as "Available" | "Booked" | "Maintenance",
-          modelYear: data.model_year,
-          imageUrl: data.image_url || undefined,
-          description: data.description || undefined
-        };
-        
-        // Add to local state
-        setVehicles([...vehicles, newVehicle]);
-        
-        toast({
-          title: "Vehicle added",
-          description: `${values.name} has been added to the fleet.`,
-        });
+          toast({
+            title: "Vehicle added",
+            description: `${values.name} has been added to the fleet.`,
+          });
+        }
       }
     } catch (error) {
       console.error("Error saving vehicle:", error);
