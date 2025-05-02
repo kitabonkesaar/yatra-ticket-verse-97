@@ -1,10 +1,10 @@
 
 import { useState, useEffect } from "react";
 import { User } from "@/types/admin";
-import { fetchUsers, createUser, updateUser, deleteUser } from "@/services/userService";
-import { toast } from "@/hooks/use-toast";
+import { fetchUsers, updateUser, createUser, deleteUser } from "@/services/userService";
+import { toast } from "sonner";
 
-export function useUserManagement() {
+export const useUserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,11 +24,7 @@ export function useUserManagement() {
         setUsers(data);
       } catch (error) {
         console.error("Error loading users:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load users. Please try again.",
-          variant: "destructive"
-        });
+        toast.error("Failed to load users. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -46,29 +42,29 @@ export function useUserManagement() {
     }
   };
 
-  const sortedUsers = [...users].sort((a, b) => {
-    if (!sortField) return 0;
-    
-    const fieldA = a[sortField as keyof typeof a];
-    const fieldB = b[sortField as keyof typeof b];
-    
-    if (typeof fieldA === 'string' && typeof fieldB === 'string') {
+  const filteredUsers = users
+    .sort((a, b) => {
+      if (!sortField) return 0;
+      
+      const fieldA = a[sortField as keyof typeof a];
+      const fieldB = b[sortField as keyof typeof b];
+      
+      if (typeof fieldA === 'string' && typeof fieldB === 'string') {
+        return sortDirection === "asc" 
+          ? fieldA.localeCompare(fieldB) 
+          : fieldB.localeCompare(fieldA);
+      }
+      
+      // For other types, convert to string for comparison
       return sortDirection === "asc" 
-        ? fieldA.localeCompare(fieldB) 
-        : fieldB.localeCompare(fieldA);
-    }
-    
-    // For numeric fields
-    return sortDirection === "asc" 
-      ? Number(fieldA) - Number(fieldB) 
-      : Number(fieldB) - Number(fieldA);
-  });
-
-  const filteredUsers = sortedUsers.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.phone.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+        ? String(fieldA).localeCompare(String(fieldB)) 
+        : String(fieldB).localeCompare(String(fieldA));
+    })
+    .filter(user => 
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.phone.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   // CRUD operations
   const handleAddUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>) => {
@@ -77,18 +73,11 @@ export function useUserManagement() {
       
       if (newUser) {
         setUsers([...users, newUser]);
-        toast({
-          title: "User Added",
-          description: `${newUser.name} has been added successfully.`,
-        });
+        toast.success(`${newUser.name} has been added successfully.`);
       }
     } catch (error) {
       console.error("Error adding user:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add user. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to add user. Please try again.");
     }
   };
 
@@ -109,17 +98,10 @@ export function useUserManagement() {
           : user
       ));
       
-      toast({
-        title: "User Updated",
-        description: `${userData.name}'s information has been updated.`,
-      });
+      toast.success(`${userData.name}'s information has been updated.`);
     } catch (error) {
       console.error("Error updating user:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update user. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to update user. Please try again.");
     }
   };
 
@@ -127,21 +109,13 @@ export function useUserManagement() {
     if (!selectedUser) return;
     
     try {
-      await deleteUser(selectedUser.id);
+      await deleteUser(selectedUser.id as string);
       
       setUsers(users.filter(user => user.id !== selectedUser.id));
-      toast({
-        title: "User Deleted",
-        description: `${selectedUser.name} has been deleted.`,
-        variant: "destructive",
-      });
+      toast.success(`${selectedUser.name} has been deleted.`);
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete user. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to delete user. Please try again.");
     }
   };
 
@@ -182,4 +156,4 @@ export function useUserManagement() {
     openDeleteDialog,
     openAddDialog
   };
-}
+};

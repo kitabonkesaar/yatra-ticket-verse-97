@@ -52,7 +52,7 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
   return {
     id: data.id,
     name: data.name,
-    email: data.email || `${data.id}@example.com`,
+    email: `${data.id}@example.com`, // Generate an email since it's not in the table
     phone: data.phone,
     role: data.role as "Customer" | "Admin",
     status: data.status as "Active" | "Inactive",
