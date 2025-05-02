@@ -103,7 +103,7 @@ export const BookingTable = ({
           ) : bookings.length > 0 ? (
             bookings.map((booking) => (
               <TableRow key={booking.id}>
-                <TableCell>#{typeof booking.id === 'string' ? booking.id.substring(0, 5) : booking.id.toString().substring(0, 5)}</TableCell>
+                <TableCell>#{booking.id.substring(0, 5)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">

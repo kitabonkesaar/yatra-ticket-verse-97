@@ -31,7 +31,20 @@ export const useVehiclesManagement = () => {
       }
 
       if (data) {
-        setVehicles(data);
+        // Map data from Supabase to our Vehicle interface
+        const mappedData: Vehicle[] = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          type: item.type as "Car" | "Bus" | "Tempo Traveller" | "Other",
+          seats: item.seats,
+          registrationNumber: item.registration_number,
+          status: item.status as "Available" | "Booked" | "Maintenance",
+          modelYear: item.model_year,
+          imageUrl: item.image_url || undefined,
+          description: item.description || undefined
+        }));
+        
+        setVehicles(mappedData);
       }
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -75,11 +88,13 @@ export const useVehiclesManagement = () => {
       const { error } = await supabase
         .from("vehicles")
         .delete()
-        .match({ id: selectedVehicle.id });
+        .eq('id', selectedVehicle.id);
 
       if (error) throw error;
       
+      // Update local state
       setVehicles(vehicles.filter(v => v.id !== selectedVehicle.id));
+      
       toast({
         title: "Vehicle deleted",
         description: `${selectedVehicle.name} has been removed.`,
@@ -99,9 +114,21 @@ export const useVehiclesManagement = () => {
   const handleSubmit = async (values: Omit<Vehicle, "id">) => {
     try {
       if (isEditing && selectedVehicle) {
+        // Map our Vehicle interface to Supabase format
+        const supabaseData = {
+          name: values.name,
+          type: values.type,
+          seats: values.seats,
+          registration_number: values.registrationNumber,
+          status: values.status,
+          model_year: values.modelYear,
+          image_url: values.imageUrl,
+          description: values.description
+        };
+        
         const { error } = await supabase
           .from("vehicles")
-          .update(values)
+          .update(supabaseData)
           .eq('id', selectedVehicle.id);
 
         if (error) throw error;
@@ -116,16 +143,41 @@ export const useVehiclesManagement = () => {
           description: `${values.name} has been updated.`,
         });
       } else {
+        // Map our Vehicle interface to Supabase format
+        const supabaseData = {
+          name: values.name,
+          type: values.type,
+          seats: values.seats,
+          registration_number: values.registrationNumber,
+          status: values.status,
+          model_year: values.modelYear,
+          image_url: values.imageUrl,
+          description: values.description
+        };
+        
         const { data, error } = await supabase
           .from("vehicles")
-          .insert(values)
+          .insert(supabaseData)
           .select()
           .single();
 
         if (error) throw error;
           
+        // Map the returned Supabase data to our Vehicle interface
+        const newVehicle: Vehicle = {
+          id: data.id,
+          name: data.name,
+          type: data.type as "Car" | "Bus" | "Tempo Traveller" | "Other",
+          seats: data.seats,
+          registrationNumber: data.registration_number,
+          status: data.status as "Available" | "Booked" | "Maintenance",
+          modelYear: data.model_year,
+          imageUrl: data.image_url || undefined,
+          description: data.description || undefined
+        };
+        
         // Add to local state
-        setVehicles([...vehicles, data]);
+        setVehicles([...vehicles, newVehicle]);
         
         toast({
           title: "Vehicle added",

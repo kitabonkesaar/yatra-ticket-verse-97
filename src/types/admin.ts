@@ -13,7 +13,7 @@ export interface User {
 
 // Vehicle interface
 export interface Vehicle {
-  id: number;
+  id: string;
   name: string;
   type: "Car" | "Bus" | "Tempo Traveller" | "Other";
   seats: number;
@@ -33,7 +33,7 @@ export interface ItineraryItem {
 
 // Trip Package interface
 export interface TripPackage {
-  id: number;
+  id: string;
   name: string;
   destination: string;
   duration: string;
@@ -47,7 +47,7 @@ export interface TripPackage {
   itinerary?: ItineraryItem[];
 }
 
-// Booking interface - updated id to be string type to match Supabase UUID
+// Booking interface
 export interface Booking {
   id: string;
   customer: string;
