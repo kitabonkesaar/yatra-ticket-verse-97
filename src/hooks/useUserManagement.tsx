@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { User } from "@/types/admin";
 import { fetchUsers, updateUser, createUser, deleteUser } from "@/services/userService";
@@ -109,7 +108,6 @@ export const useUserManagement = () => {
     if (!selectedUser) return;
     
     try {
-      // We know selectedUser.id is either a string or number here
       await deleteUser(selectedUser.id);
       
       setUsers(users.filter(user => user.id !== selectedUser.id));
