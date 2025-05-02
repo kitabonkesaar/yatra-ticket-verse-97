@@ -35,12 +35,12 @@ export const fetchUsers = async (): Promise<User[]> => {
 export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
   const { data, error } = await supabase
     .from('users')
-    .insert([{
+    .insert({
       name: userData.name,
       phone: userData.phone,
       role: userData.role,
       status: userData.status
-    }])
+    })
     .select()
     .single();
 
@@ -72,7 +72,7 @@ export const updateUser = async (user: User): Promise<void> => {
   const { error } = await supabase
     .from('users')
     .update(updateData)
-    .eq('id', id);
+    .eq('id', id.toString());
 
   if (error) {
     throw new Error(error.message);
@@ -82,11 +82,11 @@ export const updateUser = async (user: User): Promise<void> => {
 /**
  * Deletes a user from the database
  */
-export const deleteUser = async (id: string): Promise<void> => {
+export const deleteUser = async (id: string | number): Promise<void> => {
   const { error } = await supabase
     .from('users')
     .delete()
-    .eq('id', id);
+    .eq('id', id.toString());
 
   if (error) {
     throw new Error(error.message);
