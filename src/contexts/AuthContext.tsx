@@ -31,9 +31,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
-        // Check if user is admin based on email (demo only)
+        // Check if user is admin based on email (demo only) or metadata
         if (newSession?.user) {
-          setIsAdmin(newSession.user.email === "admin@bharatyatra.com");
+          const isAdminByEmail = newSession.user.email === "admin@bharatyatra.com";
+          const isAdminByMetadata = newSession.user.user_metadata?.role === "admin";
+          
+          setIsAdmin(isAdminByEmail || isAdminByMetadata);
         } else {
           setIsAdmin(false);
         }
@@ -45,9 +48,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Check if user is admin based on email (demo only)
+      // Check if user is admin based on email (demo only) or metadata
       if (currentSession?.user) {
-        setIsAdmin(currentSession.user.email === "admin@bharatyatra.com");
+        const isAdminByEmail = currentSession.user.email === "admin@bharatyatra.com";
+        const isAdminByMetadata = currentSession.user.user_metadata?.role === "admin";
+        
+        setIsAdmin(isAdminByEmail || isAdminByMetadata);
       }
       
       setLoading(false);

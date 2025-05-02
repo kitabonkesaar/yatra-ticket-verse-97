@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Vehicle } from "@/types/admin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useVehiclesManagement = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -12,6 +13,7 @@ export const useVehiclesManagement = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const { user, isAdmin } = useAuth();
   
   // Fetch vehicles from Supabase
   useEffect(() => {
@@ -65,18 +67,75 @@ export const useVehiclesManagement = () => {
   );
 
   const handleAddVehicle = () => {
+    // Check if user is logged in and has admin role
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to add vehicles.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isAdmin) {
+      toast({
+        title: "Unauthorized",
+        description: "You must have admin privileges to add vehicles.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsEditing(false);
     setSelectedVehicle(null);
     setDialogOpen(true);
   };
 
   const handleEditVehicle = (vehicle: Vehicle) => {
+    // Check if user is logged in and has admin role
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to edit vehicles.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isAdmin) {
+      toast({
+        title: "Unauthorized",
+        description: "You must have admin privileges to edit vehicles.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsEditing(true);
     setSelectedVehicle(vehicle);
     setDialogOpen(true);
   };
 
   const handleDeleteVehicle = (vehicle: Vehicle) => {
+    // Check if user is logged in and has admin role
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to delete vehicles.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isAdmin) {
+      toast({
+        title: "Unauthorized",
+        description: "You must have admin privileges to delete vehicles.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setSelectedVehicle(vehicle);
     setDeleteDialogOpen(true);
   };
@@ -113,6 +172,25 @@ export const useVehiclesManagement = () => {
 
   const handleSubmit = async (values: Omit<Vehicle, "id">) => {
     try {
+      if (!user) {
+        throw new Error("You must be logged in to perform this action");
+      }
+      
+      if (!isAdmin) {
+        throw new Error("You must have admin privileges to perform this action");
+      }
+      
+      // Update user metadata if necessary to ensure admin role is set
+      // This is only needed if you're managing the admin role through metadata
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: { role: 'admin' }
+      });
+      
+      if (metadataError) {
+        console.warn("Unable to update user metadata:", metadataError);
+        // Continue anyway as the RLS policy might still work
+      }
+      
       if (isEditing && selectedVehicle) {
         // Map our Vehicle interface to Supabase format
         const supabaseData = {
