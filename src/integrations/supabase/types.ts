@@ -49,27 +49,35 @@ export type Database = {
           trip_title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bookings_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       passengers: {
         Row: {
           aadhaar: string | null
           age: string
-          booking_id: string | null
+          booking_id: string
           id: string
           name: string
         }
         Insert: {
           aadhaar?: string | null
           age: string
-          booking_id?: string | null
+          booking_id: string
           id?: string
           name: string
         }
         Update: {
           aadhaar?: string | null
           age?: string
-          booking_id?: string | null
+          booking_id?: string
           id?: string
           name?: string
         }
@@ -83,12 +91,126 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          bookings: Json | null
+          created_at: string | null
+          id: string
+          name: string | null
+          phone: number | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          bookings?: Json | null
+          created_at?: string | null
+          id: string
+          name?: string | null
+          phone?: number | null
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          bookings?: Json | null
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          phone?: number | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      trip_packages: {
+        Row: {
+          created_at: string
+          description: string | null
+          destination: string
+          duration: string
+          end_date: string | null
+          featured: boolean
+          id: string
+          image_url: string | null
+          itinerary: Json | null
+          name: string
+          price: number
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          destination: string
+          duration: string
+          end_date?: string | null
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          itinerary?: Json | null
+          name: string
+          price: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          destination?: string
+          duration?: string
+          end_date?: string | null
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          itinerary?: Json | null
+          name?: string
+          price?: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          phone: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

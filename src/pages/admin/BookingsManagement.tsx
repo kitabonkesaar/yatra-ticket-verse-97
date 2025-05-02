@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Table, 
   TableBody, 
@@ -18,6 +18,8 @@ import { BookingFormDialog } from "@/components/admin/BookingFormDialog";
 import { BookingDetailsDialog } from "@/components/admin/BookingDetailsDialog";
 import { toast } from "@/hooks/use-toast";
 import { Booking, TripPackage } from "@/types/admin";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdminRoute } from "@/hooks/useAdminRoute";
 
 // Mock trip packages for the booking form
 const mockTripPackages: TripPackage[] = [
@@ -50,79 +52,77 @@ const mockTripPackages: TripPackage[] = [
   },
 ];
 
-// Mock data - in a real app, this would come from your backend
-const mockBookings: Booking[] = [
-  { 
-    id: 1, 
-    customer: "John Doe", 
-    customerEmail: "john@example.com",
-    customerImage: "https://ui-avatars.com/api/?name=John+Doe",
-    destination: "Manali Adventure", 
-    date: new Date(2025, 5, 15), 
-    passengers: 3, 
-    status: "Confirmed", 
-    total: 16500,
-    paymentType: "Online",
-    notes: "Customer requested vegetarian meals."
-  },
-  { 
-    id: 2, 
-    customer: "Jane Smith", 
-    customerEmail: "jane@example.com",
-    customerImage: "https://ui-avatars.com/api/?name=Jane+Smith&background=7e3af2&color=fff",
-    destination: "Ladakh Explorer", 
-    date: new Date(2025, 6, 2), 
-    passengers: 2, 
-    status: "Pending", 
-    total: 28200,
-    paymentType: "Online"
-  },
-  { 
-    id: 3, 
-    customer: "Bob Johnson", 
-    customerEmail: "bob@example.com",
-    customerImage: "https://ui-avatars.com/api/?name=Bob+Johnson",
-    destination: "Shimla Weekend", 
-    date: new Date(2025, 4, 20), 
-    passengers: 4, 
-    status: "Confirmed", 
-    total: 25800,
-    paymentType: "Cash"
-  },
-  { 
-    id: 4, 
-    customer: "Alice Brown", 
-    customerEmail: "alice@example.com",
-    customerImage: "https://ui-avatars.com/api/?name=Alice+Brown&background=16a34a&color=fff",
-    destination: "Manali Adventure", 
-    date: new Date(2025, 7, 10), 
-    passengers: 2, 
-    status: "Cancelled", 
-    total: 12500,
-    paymentType: "Online"
-  },
-  { 
-    id: 5, 
-    customer: "Charlie Wilson", 
-    customerEmail: "charlie@example.com",
-    customerImage: "https://ui-avatars.com/api/?name=Charlie+Wilson",
-    destination: "Ladakh Explorer", 
-    date: new Date(2025, 6, 28), 
-    passengers: 5, 
-    status: "Confirmed", 
-    total: 42000,
-    paymentType: "Online"
-  },
-];
-
 const BookingsManagement = () => {
-  const [bookings, setBookings] = useState<Booking[]>(mockBookings);
+  // Protect admin route
+  useAdminRoute();
+  
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
+  // Fetch bookings from Supabase
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("bookings")
+          .select(`
+            id,
+            trip_title,
+            start_date,
+            total_amount,
+            status,
+            payment_type,
+            contact,
+            ex,
+            bus_type,
+            booking_date,
+            passengers (name, age, aadhaar)
+          `)
+          .order('booking_date', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        // Transform data to match Booking type
+        const transformedBookings: Booking[] = data.map((booking: any) => ({
+          id: booking.id,
+          customer: booking.passengers && booking.passengers.length > 0 ? booking.passengers[0].name : 'Unknown',
+          customerEmail: booking.contact,
+          customerImage: `https://ui-avatars.com/api/?name=${booking.passengers && booking.passengers.length > 0 ? encodeURIComponent(booking.passengers[0].name) : 'U'}`,
+          destination: booking.trip_title,
+          date: new Date(booking.start_date),
+          passengers: booking.passengers ? booking.passengers.length : 1,
+          status: booking.status || 'Pending',
+          total: booking.total_amount,
+          paymentType: booking.payment_type,
+          notes: booking.notes || "",
+          // Additional data for details view
+          rawData: booking
+        }));
+
+        setBookings(transformedBookings);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch bookings. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -187,27 +187,69 @@ const BookingsManagement = () => {
     setDetailsDialogOpen(true);
   };
 
-  const handleSubmitBooking = (values: any) => {
-    const newId = Math.max(0, ...bookings.map(b => b.id)) + 1;
-    const newBooking: Booking = {
-      id: newId,
-      customer: values.customer,
-      customerEmail: values.customerEmail,
-      customerImage: `https://ui-avatars.com/api/?name=${values.customer.replace(' ', '+')}`,
-      destination: values.destination,
-      date: values.date,
-      passengers: values.passengers,
-      status: values.status,
-      total: values.total,
-      paymentType: values.paymentType,
-      notes: values.notes
-    };
-    
-    setBookings([...bookings, newBooking]);
-    toast({
-      title: "Booking created",
-      description: `Booking for ${values.customer} has been created successfully.`
-    });
+  const handleSubmitBooking = async (values: any) => {
+    try {
+      // Insert booking record into Supabase
+      const { data: bookingData, error: bookingError } = await supabase
+        .from("bookings")
+        .insert({
+          user_id: "00000000-0000-0000-0000-000000000000", // Admin-created bookings use a placeholder ID
+          trip_title: values.destination,
+          start_date: values.date.toISOString().split('T')[0],
+          ex: "Admin Portal", // Default for admin-created bookings
+          bus_type: "Standard", // Default bus type
+          contact: values.customerEmail,
+          total_amount: values.total,
+          payment_type: values.paymentType,
+          status: values.status,
+          booking_date: new Date().toISOString()
+        })
+        .select()
+        .single();
+        
+      if (bookingError) throw bookingError;
+      
+      // Insert passenger record - assuming 1 passenger for admin-created bookings
+      const { error: passengerError } = await supabase
+        .from("passengers")
+        .insert({
+          booking_id: bookingData.id,
+          name: values.customer,
+          age: "30", // Default age for admin-created bookings
+          aadhaar: null
+        });
+        
+      if (passengerError) throw passengerError;
+      
+      // Add to local state
+      const newBooking: Booking = {
+        id: bookingData.id,
+        customer: values.customer,
+        customerEmail: values.customerEmail,
+        customerImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(values.customer)}`,
+        destination: values.destination,
+        date: values.date,
+        passengers: values.passengers,
+        status: values.status,
+        total: values.total,
+        paymentType: values.paymentType,
+        notes: values.notes || ""
+      };
+      
+      setBookings([newBooking, ...bookings]);
+      
+      toast({
+        title: "Booking created",
+        description: `Booking for ${values.customer} has been created successfully.`,
+      });
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create booking. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -232,7 +274,9 @@ const BookingsManagement = () => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>All Bookings</CardTitle>
-              <CardDescription>Total {filteredBookings.length} bookings</CardDescription>
+              <CardDescription>
+                {loading ? "Loading bookings..." : `Total ${filteredBookings.length} bookings`}
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -294,47 +338,57 @@ const BookingsManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBookings.map((booking) => (
-                  <TableRow key={booking.id}>
-                    <TableCell>#{booking.id}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={booking.customerImage} alt={booking.customer} />
-                          <AvatarFallback>{booking.customer.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{booking.customer}</div>
-                          <div className="text-xs text-gray-500">{booking.customerEmail}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{booking.destination}</TableCell>
-                    <TableCell>{format(booking.date, "dd MMM, yyyy")}</TableCell>
-                    <TableCell>{booking.passengers}</TableCell>
-                    <TableCell>
-                      <div>₹{booking.total.toLocaleString('en-IN')}</div>
-                      <div className="text-xs text-gray-500">{booking.paymentType}</div>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusBadgeColor(booking.status)}`}>
-                        {booking.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewBooking(booking)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <FileText className="h-4 w-4" />
-                        </Button>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8">
+                      <div className="flex justify-center items-center space-x-2">
+                        <div className="h-4 w-4 bg-gray-200 rounded-full animate-pulse"></div>
+                        <div className="h-4 w-4 bg-gray-300 rounded-full animate-pulse"></div>
+                        <div className="h-4 w-4 bg-gray-200 rounded-full animate-pulse"></div>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
-
-                {filteredBookings.length === 0 && (
+                ) : filteredBookings.length > 0 ? (
+                  filteredBookings.map((booking) => (
+                    <TableRow key={booking.id}>
+                      <TableCell>#{booking.id.substring(0, 5)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={booking.customerImage} alt={booking.customer} />
+                            <AvatarFallback>{booking.customer.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{booking.customer}</div>
+                            <div className="text-xs text-gray-500">{booking.customerEmail}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{booking.destination}</TableCell>
+                      <TableCell>{format(booking.date, "dd MMM, yyyy")}</TableCell>
+                      <TableCell>{booking.passengers}</TableCell>
+                      <TableCell>
+                        <div>₹{booking.total.toLocaleString('en-IN')}</div>
+                        <div className="text-xs text-gray-500">{booking.paymentType}</div>
+                      </TableCell>
+                      <TableCell>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusBadgeColor(booking.status)}`}>
+                          {booking.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewBooking(booking)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                       No bookings found matching your search criteria

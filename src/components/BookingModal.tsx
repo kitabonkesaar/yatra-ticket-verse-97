@@ -6,6 +6,7 @@ import DigitalTicket from "./DigitalTicket";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface BookingModalProps {
   open: boolean;
@@ -28,7 +29,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
 }) => {
   const navigate = useNavigate();
   const [step, setStep] = useState<"form" | "success" | "ticket">("form");
-  const [user, setUser] = useState<any>(null);
+  const { user } = useAuth();
   const [form, setForm] = useState({
     name: "",
     age: "",
@@ -36,15 +37,6 @@ const BookingModal: React.FC<BookingModalProps> = ({
     contact: "",
     seats: "1"
   });
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    
-    checkAuth();
-  }, []);
 
   if (!open) return null;
 
@@ -71,8 +63,10 @@ const BookingModal: React.FC<BookingModalProps> = ({
             ex: ex,
             bus_type: "Sleeper Bus", // This could be dynamic in a real app
             contact: form.contact,
-            total_amount: price,
-            payment_type: "Advance"
+            total_amount: price * Number(form.seats),
+            payment_type: "Advance",
+            status: "Pending",
+            booking_date: new Date().toISOString()
           })
           .select()
           .single();
