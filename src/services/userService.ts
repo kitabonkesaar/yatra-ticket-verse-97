@@ -7,25 +7,30 @@ import { toast } from "sonner";
  * Fetches all users from the database
  */
 export const fetchUsers = async (): Promise<User[]> => {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .order('created_at', { ascending: false });
+  // Fetch users from the auth.users view via the profiles table
+  // since we can't directly query auth.users from client-side code
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('id, name, phone, role, updated_at');
 
   if (error) {
     throw new Error(error.message);
   }
 
+  if (!profiles) {
+    return [];
+  }
+
   // Format the users data to match our User type
-  return data.map((user: any) => ({
-    id: user.id,
-    name: user.name,
-    email: user.email || `${user.id}@example.com`, // Email might not be available in the table
-    phone: user.phone,
-    role: user.role as "Customer" | "Admin",
-    status: user.status as "Active" | "Inactive",
-    lastActive: user.updated_at || user.created_at,
-    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
+  return profiles.map((profile: any) => ({
+    id: profile.id,
+    name: profile.name || 'Anonymous User',
+    email: `${profile.id.slice(0, 8)}@example.com`, // Email might not be available in the table
+    phone: profile.phone?.toString() || 'N/A',
+    role: profile.role as "Customer" | "Admin",
+    status: "Active", // Assume all profiles are active
+    lastActive: profile.updated_at || new Date().toISOString(),
+    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=random`
   }));
 };
 
@@ -33,18 +38,17 @@ export const fetchUsers = async (): Promise<User[]> => {
  * Creates a new user in the database
  */
 export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
-  // The Supabase types expect id as a property but it's auto-generated
-  // We'll use type assertion to bypass this type requirement
-  const userDataToInsert = {
-    name: userData.name,
-    phone: userData.phone,
-    role: userData.role,
-    status: userData.status
-  } as any; // Using type assertion to bypass the strict typing
-
+  const { name, phone, role, status } = userData;
+  
+  // Insert into profiles table instead of users table
   const { data, error } = await supabase
-    .from('users')
-    .insert(userDataToInsert)
+    .from('profiles')
+    .insert({
+      name,
+      phone: phone, 
+      role,
+      // Status is not in the profiles table, so we omit it
+    })
     .select()
     .single();
 
@@ -55,13 +59,13 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
   // Format the returned data to match our User type
   return {
     id: data.id,
-    name: data.name,
-    email: `${data.id}@example.com`, // Generate an email since it's not in the table
-    phone: data.phone,
+    name: data.name || 'Anonymous User',
+    email: `${data.id.slice(0, 8)}@example.com`,
+    phone: data.phone?.toString() || 'N/A',
     role: data.role as "Customer" | "Admin",
-    status: data.status as "Active" | "Inactive",
-    lastActive: data.updated_at || data.created_at,
-    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`
+    status: status as "Active" | "Inactive", // Use the provided status since it's not in profiles
+    lastActive: data.updated_at || new Date().toISOString(),
+    image: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'User')}&background=random`
   };
 };
 
@@ -70,13 +74,13 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
  */
 export const updateUser = async (user: User): Promise<void> => {
   // Extract only the fields that should be updated
-  const { id, name, phone, role, status } = user;
-  const updateData = { name, phone, role, status };
+  const { id, name, phone, role } = user;
+  const updateData = { name, phone, role };
   
   const { error } = await supabase
-    .from('users')
+    .from('profiles')
     .update(updateData)
-    .eq('id', typeof id === 'number' ? id.toString() : id);
+    .eq('id', id.toString());
 
   if (error) {
     throw new Error(error.message);
@@ -88,9 +92,9 @@ export const updateUser = async (user: User): Promise<void> => {
  */
 export const deleteUser = async (id: string | number): Promise<void> => {
   const { error } = await supabase
-    .from('users')
+    .from('profiles')
     .delete()
-    .eq('id', typeof id === 'number' ? id.toString() : id);
+    .eq('id', id.toString());
 
   if (error) {
     throw new Error(error.message);
