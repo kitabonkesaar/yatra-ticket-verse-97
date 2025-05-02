@@ -45,7 +45,7 @@ export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'ima
   const newId = crypto.randomUUID();
   
   // Convert phone to number if it's a string since Supabase expects a number
-  const phoneNumber = phone ? parseFloat(phone) : null;
+  const phoneNumber = phone && phone !== 'N/A' ? parseFloat(phone) : null;
   
   // Insert into profiles table instead of users table
   const { data, error } = await supabase

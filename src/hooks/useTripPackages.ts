@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { TripPackage } from "@/types/admin";
+import { TripPackage, ItineraryItem } from "@/types/admin";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
@@ -115,6 +115,9 @@ export const useTripPackages = () => {
   const handleSubmit = async (values: Omit<TripPackage, "id">) => {
     try {
       if (isEditing && selectedPackage) {
+        // Convert itinerary to a format compatible with Json type
+        const itineraryJson = values.itinerary ? values.itinerary as unknown as Json : [];
+        
         // Map the values to Supabase column names
         const { error } = await supabase
           .from('trip_packages')
@@ -129,7 +132,7 @@ export const useTripPackages = () => {
             description: values.description || null,
             image_url: values.imageUrl || null,
             featured: values.featured,
-            itinerary: values.itinerary || []
+            itinerary: itineraryJson
           })
           .eq('id', selectedPackage.id);
 
@@ -140,6 +143,9 @@ export const useTripPackages = () => {
         toast("Trip package updated successfully");
       } else {
         // Add new trip package
+        // Convert itinerary to a format compatible with Json type
+        const itineraryJson = values.itinerary ? values.itinerary as unknown as Json : [];
+        
         const { error } = await supabase
           .from('trip_packages')
           .insert({
@@ -153,7 +159,7 @@ export const useTripPackages = () => {
             description: values.description || null,
             image_url: values.imageUrl || null,
             featured: values.featured,
-            itinerary: values.itinerary || []
+            itinerary: itineraryJson
           });
 
         if (error) throw error;
