@@ -33,14 +33,18 @@ export const fetchUsers = async (): Promise<User[]> => {
  * Creates a new user in the database
  */
 export const createUser = async (userData: Omit<User, 'id' | 'lastActive' | 'image'>): Promise<User> => {
+  // The Supabase types expect id as a property but it's auto-generated
+  // We'll use type assertion to bypass this type requirement
+  const userDataToInsert = {
+    name: userData.name,
+    phone: userData.phone,
+    role: userData.role,
+    status: userData.status
+  } as any; // Using type assertion to bypass the strict typing
+
   const { data, error } = await supabase
     .from('users')
-    .insert({
-      name: userData.name,
-      phone: userData.phone,
-      role: userData.role,
-      status: userData.status
-    })
+    .insert(userDataToInsert)
     .select()
     .single();
 
@@ -72,7 +76,7 @@ export const updateUser = async (user: User): Promise<void> => {
   const { error } = await supabase
     .from('users')
     .update(updateData)
-    .eq('id', id.toString());
+    .eq('id', typeof id === 'number' ? id.toString() : id);
 
   if (error) {
     throw new Error(error.message);
@@ -86,7 +90,7 @@ export const deleteUser = async (id: string | number): Promise<void> => {
   const { error } = await supabase
     .from('users')
     .delete()
-    .eq('id', id.toString());
+    .eq('id', typeof id === 'number' ? id.toString() : id);
 
   if (error) {
     throw new Error(error.message);
