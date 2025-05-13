@@ -90,6 +90,11 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
             </button>
           </div>
         </div>
+        <div className="pt-4 text-sm">
+          <p className="text-orange-600">Demo Accounts:</p>
+          <p>- User: user@bharatyatra.com / password123</p>
+          <p>- Admin: admin@bharatyatra.com / admin123</p>
+        </div>
       </CardContent>
       
       <CardFooter>
