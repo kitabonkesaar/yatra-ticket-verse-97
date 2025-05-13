@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Dialog,
@@ -14,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Booking } from "@/types/admin";
 import { CalendarIcon, UserIcon, MapPinIcon, UsersIcon, CreditCardIcon, FileTextIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useBookingManagement } from '@/hooks/useBookingManagement';
 
 interface BookingDetailsDialogProps {
   open: boolean;
@@ -26,6 +26,7 @@ export function BookingDetailsDialog({
   onOpenChange,
   booking
 }: BookingDetailsDialogProps) {
+  const { confirmBooking } = useBookingManagement();
   if (!booking) {
     return null;
   }
@@ -111,6 +112,17 @@ export function BookingDetailsDialog({
         </div>
 
         <DialogFooter>
+          {booking.status === 'Pending' && (
+            <Button
+              className="bg-green-600 text-white mr-2"
+              onClick={async () => {
+                await confirmBooking(booking.id);
+                onOpenChange(false);
+              }}
+            >
+              Confirm Ticket
+            </Button>
+          )}
           <DialogClose asChild>
             <Button>Close</Button>
           </DialogClose>

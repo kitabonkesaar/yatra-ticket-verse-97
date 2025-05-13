@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -29,7 +28,7 @@ const AboutPage = () => {
   ];
 
   const milestones = [
-    { year: 2015, event: "Bharat Yatra founded with just 2 routes" },
+    { year: 2015, event: "Mo Yatra founded with just 2 routes" },
     { year: 2018, event: "Expanded to 10+ spiritual destinations" },
     { year: 2020, event: "Launched online booking platform" },
     { year: 2022, event: "Reached 10,000 satisfied travelers" },
@@ -53,7 +52,7 @@ const AboutPage = () => {
           <div className="relative container-custom py-20 md:py-28">
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                About <span className="text-bharat-orange">Bharat Yatra</span>
+                About <span className="text-bharat-orange">Mo Yatra</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-200 mb-8 leading-relaxed">
                 We are dedicated to making spiritual journeys accessible to all. Our mission is to connect people with
@@ -119,7 +118,7 @@ const AboutPage = () => {
               <div>
                 <h2 className="text-3xl font-bold mb-4">Our Story</h2>
                 <p className="text-gray-700 mb-4">
-                  Bharat Yatra began in 2015 with a simple idea: make spiritual journeys affordable without compromising the experience. 
+                  Mo Yatra began in 2015 with a simple idea: make spiritual journeys affordable without compromising the experience. 
                   Our founder, Aditya Sharma, realized many people wanted to visit sacred sites but were deterred by high costs.
                 </p>
                 <p className="text-gray-700 mb-6">
@@ -187,31 +186,6 @@ const AboutPage = () => {
                   Our schedules are carefully planned and adhered to, respecting your time and journey.
                 </p>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Team Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="container-custom">
-            <h2 className="text-3xl font-bold mb-10 text-center">Meet Our Team</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {teamMembers.map((member, index) => (
-                <div key={index} className="bg-white rounded-xl overflow-hidden shadow-md">
-                  <div className="h-64 overflow-hidden">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-1">{member.name}</h3>
-                    <p className="text-bharat-orange font-medium mb-3">{member.role}</p>
-                    <p className="text-gray-600">{member.bio}</p>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </section>

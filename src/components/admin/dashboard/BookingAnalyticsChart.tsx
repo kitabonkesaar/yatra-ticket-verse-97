@@ -1,20 +1,46 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock data for bookings chart
-const bookingData = [
-  { name: 'Jan', bookings: 400 },
-  { name: 'Feb', bookings: 300 },
-  { name: 'Mar', bookings: 600 },
-  { name: 'Apr', bookings: 800 },
-  { name: 'May', bookings: 500 },
-  { name: 'Jun', bookings: 900 },
-  { name: 'Jul', bookings: 1100 },
-];
+function getMonthName(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleString('default', { month: 'short', year: '2-digit' });
+}
 
 export const BookingAnalyticsChart: React.FC = () => {
+  const [bookingData, setBookingData] = useState<{ name: string; bookings: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookingAnalytics = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("id, booking_date");
+      if (error) {
+        setBookingData([]);
+        setLoading(false);
+        return;
+      }
+      // Group bookings by month
+      const monthMap: Record<string, number> = {};
+      data.forEach((b: any) => {
+        if (b.booking_date) {
+          const month = getMonthName(b.booking_date);
+          monthMap[month] = (monthMap[month] || 0) + 1;
+        }
+      });
+      // Convert to array and sort by month (recent last)
+      const sorted = Object.entries(monthMap)
+        .map(([name, bookings]) => ({ name, bookings }))
+        .sort((a, b) => new Date('01 ' + a.name).getTime() - new Date('01 ' + b.name).getTime());
+      setBookingData(sorted);
+      setLoading(false);
+    };
+    fetchBookingAnalytics();
+  }, []);
+
   return (
     <Card className="border-none shadow-md">
       <CardHeader>
@@ -34,11 +60,12 @@ export const BookingAnalyticsChart: React.FC = () => {
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="name" />
-              <YAxis />
+              <YAxis allowDecimals={false} />
               <Tooltip />
               <Area type="monotone" dataKey="bookings" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
             </AreaChart>
           </ResponsiveContainer>
+          {loading && <div className="text-center mt-4">Loading...</div>}
         </div>
       </CardContent>
     </Card>

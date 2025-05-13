@@ -13,7 +13,7 @@ const HeroBanner = () => {
       <div className="relative container-custom py-20 md:py-32">
         <div className="max-w-2xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Discover Sacred India with <span className="text-bharat-orange">Bharat Yatra</span>
+            Discover Sacred India with <span className="text-bharat-orange">Mo Yatra</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-200 mb-8">
             Affordable pilgrimage journeys to the most sacred sites across India. 

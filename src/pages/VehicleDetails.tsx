@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +11,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 const vehicleData = {
   bolero: {
     name: "Bolero",
-    image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=80",
+    image: "/bolero.jpg.jpg",
     description: "Perfect for small groups and rough terrain adventures",
     capacity: "7 Passengers",
     features: ["4x4 Drive", "Comfortable Seating", "Luggage Space", "Air Conditioning"],
@@ -48,7 +47,7 @@ const vehicleData = {
   },
   traveller: {
     name: "Traveller",
-    image: "https://images.unsplash.com/photo-1545171709-49f212b5a084?auto=format&fit=crop&q=80",
+    image: "/traveller.jpg.jpg",
     description: "Comfortable travel for larger groups with extra space",
     capacity: "12 Passengers",
     features: ["Reclining Seats", "Extra Luggage Space", "USB Charging", "Reading Lights"],

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -95,7 +94,7 @@ const RegisterPage = () => {
           
           <Card className="shadow-lg animate-scale-in">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-bharat-orange">Join Bharat Yatra</CardTitle>
+              <CardTitle className="text-2xl text-bharat-orange">Join Mo Yatra</CardTitle>
               <CardDescription>Create your account to book spiritual journeys</CardDescription>
             </CardHeader>
             

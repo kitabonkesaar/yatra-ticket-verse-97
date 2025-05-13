@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Booking, TripPackage } from "@/types/admin";
 import { supabase } from "@/integrations/supabase/client";
@@ -189,6 +188,32 @@ export const useBookingManagement = () => {
     }
   };
 
+  // Confirm booking status
+  const confirmBooking = async (bookingId: string) => {
+    try {
+      const { error } = await supabase
+        .from("bookings")
+        .update({ status: "Confirmed" })
+        .eq("id", bookingId);
+      if (error) throw error;
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === bookingId ? { ...b, status: "Confirmed" } : b
+        )
+      );
+      toast({
+        title: "Booking Confirmed",
+        description: "The ticket has been confirmed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to confirm booking.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     bookings: getFilteredBookings(),
     loading,
@@ -205,5 +230,6 @@ export const useBookingManagement = () => {
     handleAddBooking,
     handleViewBooking,
     handleSubmitBooking,
+    confirmBooking,
   };
 };

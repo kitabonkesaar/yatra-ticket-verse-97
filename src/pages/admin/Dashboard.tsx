@@ -1,4 +1,3 @@
-
 import React from "react";
 import { DashboardHeader } from "@/components/admin/dashboard/DashboardHeader";
 import { StatCards } from "@/components/admin/dashboard/StatCards";
@@ -23,7 +22,7 @@ const Dashboard = () => {
 
       {/* Additional Charts and Info */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <PopularDestinationsChart />
+        {/* <PopularDestinationsChart /> */}
         <RecentBookings />
       </div>
     </div>

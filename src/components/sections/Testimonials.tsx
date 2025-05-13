@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Star, Quote } from "lucide-react";
 
@@ -8,21 +7,21 @@ const testimonials = [
     trip: "Kedarnath Trip",
     image: "https://images.unsplash.com/photo-1500048993953-d23a436266cf?auto=format&fit=crop&q=80",
     rating: 5,
-    text: "Bharat Yatra made my Kedarnath journey so affordable and hassle-free. The ride was comfortable and the guide was knowledgeable about all the spiritual aspects of each location."
+    text: "Mo Yatra made my Kedarnath journey so affordable and hassle-free. The ride was comfortable and the guide was knowledgeable about all the spiritual aspects of each location."
   },
   {
     name: "Radha Agarwal",
     trip: "Nepal Temple Tour",
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80",
     rating: 5,
-    text: "Going to Pashupatinath with Bharat Yatra was a blessing. The booking process was simple and the tour was well organized. I'll definitely book with them again for my next spiritual journey."
+    text: "Going to Pashupatinath with Mo Yatra was a blessing. The booking process was simple and the tour was well organized. I'll definitely book with them again for my next spiritual journey."
   },
   {
     name: "Vijay Patel",
     trip: "Varanasi Retreat",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80",
     rating: 4,
-    text: "The Ganga Aarti experience arranged by Bharat Yatra was magical. Excellent service for the price we paid. The spiritual atmosphere was perfectly preserved."
+    text: "The Ganga Aarti experience arranged by Mo Yatra was magical. Excellent service for the price we paid. The spiritual atmosphere was perfectly preserved."
   }
 ];
 

@@ -1,4 +1,3 @@
-
 import React from "react";
 
 const WhyChooseUs = () => {
@@ -6,7 +5,7 @@ const WhyChooseUs = () => {
     <section className="py-16 bg-white">
       <div className="container-custom">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold mb-4">Why Choose Bharat Yatra</h2>
+          <h2 className="text-3xl font-bold mb-4">Why Choose Mo Yatra</h2>
           <p className="text-gray-600">
             We specialize in budget-friendly spiritual journeys without compromising on the experience
           </p>

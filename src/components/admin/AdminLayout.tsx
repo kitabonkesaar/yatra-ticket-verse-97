@@ -5,6 +5,8 @@ import { LayoutDashboard, Users, FileText, Settings, LogOut, BarChart4, Car, Pla
 import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAdminRoute } from "@/hooks/useAdminRoute";
+import { useAuth } from "@/contexts/AuthContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const AdminLayout = () => {
   // Add this line to protect admin routes
@@ -14,6 +16,9 @@ const AdminLayout = () => {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+
+  const { user, signOut } = useAuth();
+
   return <SidebarProvider>
       <div className="flex min-h-screen w-full bg-gray-50">
         <Sidebar className="border-r">
@@ -21,9 +26,9 @@ const AdminLayout = () => {
             <div className="p-4">
               <div className="flex items-center gap-2">
                 <div className="bg-gradient-to-tr from-teal-400 to-teal-500 h-8 w-8 rounded-md flex items-center justify-center">
-                  <span className="font-bold text-white">BY</span>
+                  <span className="font-bold text-white">MY</span>
                 </div>
-                <h2 className="text-xl font-bold">Bharat Yatra</h2>
+                <h2 className="text-xl font-bold">Mo Yatra</h2>
               </div>
             </div>
           </SidebarHeader>
@@ -100,14 +105,24 @@ const AdminLayout = () => {
             <div className="p-4 border-t">
               <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
                 <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" alt="Admin User" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarImage src={user?.user_metadata?.avatar_url || "https://github.com/shadcn.png"} alt={user?.email || "Admin User"} />
+                  <AvatarFallback>{user?.email?.[0]?.toUpperCase() || "A"}</AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="text-sm font-medium">Admin User</p>
-                  <p className="text-xs text-gray-500">admin@example.com</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{user?.user_metadata?.name || "Admin User"}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email || "admin@example.com"}</p>
+                  <Link to="/admin/settings" className="text-xs text-bharat-orange hover:underline block mt-1 transition-colors">Profile</Link>
                 </div>
-                <LogOut className="h-4 w-4 ml-auto text-gray-500" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button onClick={signOut} title="Log out" className="p-1 rounded hover:bg-gray-200 transition-colors">
+                        <LogOut className="h-4 w-4 text-gray-500" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Log out</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </SidebarFooter>

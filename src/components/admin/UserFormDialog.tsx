@@ -35,7 +35,8 @@ const userFormSchema = z.object({
     message: "Please enter a valid phone number.",
   }),
   role: z.enum(["Customer", "Admin"]),
-  status: z.enum(["Active", "Inactive"])
+  status: z.enum(["Active", "Inactive"]),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }).optional(),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -61,13 +62,20 @@ export function UserFormDialog({
   },
   title
 }: UserFormDialogProps) {
+  const isEdit = Boolean(defaultValues && defaultValues.email);
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(userFormSchema),
+    resolver: zodResolver(userFormSchema.refine(
+      (data) => isEdit || data.password,
+      { message: "Password is required", path: ["password"] }
+    )),
     defaultValues,
   });
 
   function handleSubmit(values: UserFormValues) {
-    onSubmit(values);
+    // Only pass password if present (for creation)
+    const submitValues = { ...values };
+    if (isEdit) delete submitValues.password;
+    onSubmit(submitValues);
     form.reset();
     onOpenChange(false);
     toast({
@@ -171,6 +179,22 @@ export function UserFormDialog({
                 </FormItem>
               )}
             />
+            {/* Password field only for creation */}
+            {!isEdit && (
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="At least 6 characters" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="outline">Cancel</Button>

@@ -60,7 +60,7 @@ const ContactPage = () => {
           <div className="relative container-custom py-16 md:py-24">
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Contact <span className="text-bharat-orange">Bharat Yatra</span>
+                Contact <span className="text-bharat-orange">Mo Yatra</span>
               </h1>
               <p className="text-lg text-gray-200 mb-8">
                 Get in touch with our team for inquiries, bookings, or any assistance you need
@@ -112,8 +112,7 @@ const ContactPage = () => {
                       <div>
                         <h3 className="font-medium text-gray-900">Address</h3>
                         <p className="text-gray-600 mt-1">
-                          123 Pilgrim Road, Karol Bagh,<br />
-                          New Delhi, 110005, India
+                          Near FM Golei, Balasore, 756001
                         </p>
                       </div>
                     </CardContent>
@@ -186,9 +185,9 @@ const ContactPage = () => {
                 <div className="mt-8">
                   <h3 className="text-lg font-medium mb-4">Our Location</h3>
                   <div className="h-[300px] bg-gray-200 rounded-lg overflow-hidden">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.693298517787!2d77.1830160748932!3d28.642911982120222!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d02a257b3ad95%3A0x9afd3e6013cd6cf8!2sKarol%20Bagh%2C%20New%20Delhi%2C%20Delhi!5e0!3m2!1sen!2sin!4v1682315825222!5m2!1sen!2sin" width="100%" height="300" style={{
+                    <iframe src="https://www.google.com/maps?q=21.499776080806143,86.9223722017678&z=16&output=embed" width="100%" height="300" style={{
                     border: 0
-                  }} allowFullScreen={true} loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Bharat Yatra Office Location" />
+                  }} allowFullScreen={true} loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Mo Yatra Office Location" />
                   </div>
                 </div>
               </div>

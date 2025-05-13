@@ -1,7 +1,6 @@
-
 {
-  "name": "Bharat Yatra",
-  "short_name": "Bharat Yatra",
+  "name": "Mo Yatra",
+  "short_name": "Mo Yatra",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

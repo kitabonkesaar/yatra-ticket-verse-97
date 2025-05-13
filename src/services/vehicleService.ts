@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Vehicle } from "@/types/admin";
 import { toast } from "@/hooks/use-toast";
@@ -15,6 +14,50 @@ export const fetchVehicles = async (): Promise<Vehicle[]> => {
 
     if (error) {
       throw error;
+    }
+
+    // If no vehicles, insert Bolero and Traveller
+    if (!data || data.length === 0) {
+      const defaultVehicles = [
+        {
+          name: "Bolero",
+          type: "Car",
+          seats: 7,
+          registration_number: "OD01AA0001",
+          status: "Available",
+          model_year: 2022,
+          image_url: "/bolero.jpg.jpg",
+          description: "Perfect for small groups and rough terrain adventures"
+        },
+        {
+          name: "Traveller",
+          type: "Tempo Traveller",
+          seats: 12,
+          registration_number: "OD01AA0002",
+          status: "Available",
+          model_year: 2022,
+          image_url: "/traveller.jpg.jpg",
+          description: "Comfortable travel for larger groups with extra space"
+        }
+      ];
+      await supabase.from("vehicles").insert(defaultVehicles);
+      // Fetch again
+      const { data: newData, error: newError } = await supabase
+        .from("vehicles")
+        .select("*")
+        .order('name');
+      if (newError) throw newError;
+      return newData.map(item => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        seats: item.seats,
+        registrationNumber: item.registration_number,
+        status: item.status,
+        modelYear: item.model_year,
+        imageUrl: item.image_url || undefined,
+        description: item.description || undefined
+      }));
     }
 
     if (data) {

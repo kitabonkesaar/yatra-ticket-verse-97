@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@/types/admin";
 import { toast } from "sonner";
@@ -8,15 +7,20 @@ import { toast } from "sonner";
  */
 export const fetchUsers = async (): Promise<User[]> => {
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*');
-
-    if (error) {
-      throw error;
-    }
-
-    return data as User[];
+    const response = await fetch('http://localhost:4000/api/admin-users');
+    const result = await response.json();
+    // result.users or result.data depending on Supabase response structure
+    // Map the Supabase Auth user fields to your User type
+    return (result.users || result.data || []).map((u: any) => ({
+      id: u.id,
+      name: u.user_metadata?.name || u.email || 'No Name',
+      email: u.email,
+      phone: u.phone || '',
+      role: u.user_metadata?.role === 'admin' ? 'Admin' : 'Customer',
+      status: u.confirmed_at ? 'Active' : 'Inactive',
+      lastActive: u.last_sign_in_at,
+      image: u.user_metadata?.avatar_url || '',
+    }));
   } catch (error) {
     console.error("Error fetching users:", error);
     toast("Failed to load users");
@@ -27,23 +31,22 @@ export const fetchUsers = async (): Promise<User[]> => {
 /**
  * Creates a new user
  */
-export const createUser = async (values: Omit<User, "id">): Promise<boolean> => {
+export const createUser = async (values: Omit<User, "id"> & { password: string }): Promise<boolean> => {
   try {
-    // For new users, we need to convert the phone string to a number or null
-    const phoneNumber = values.phone === "N/A" ? null : parseFloat(values.phone);
-
-    const { error } = await supabase
-      .from('users')
-      .insert({
+    const response = await fetch('http://localhost:4000/api/admin-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
         name: values.name,
-        phone: phoneNumber,
+        phone: values.phone,
         role: values.role,
-        status: values.status,
-      });
-
-    if (error) throw error;
-    
-    return true;
+      }),
+    });
+    const result = await response.json();
+    if (response.ok) return true;
+    throw new Error(result.error || 'Failed to create user');
   } catch (error) {
     console.error("Error creating user:", error);
     toast("Failed to create user");
@@ -56,22 +59,19 @@ export const createUser = async (values: Omit<User, "id">): Promise<boolean> => 
  */
 export const updateUser = async (id: string, values: Omit<User, "id">): Promise<boolean> => {
   try {
-    // Convert phone string to number or null
-    const phoneNumber = values.phone === "N/A" ? null : parseFloat(values.phone);
-
-    const { error } = await supabase
-      .from('users')
-      .update({
+    const response = await fetch(`http://localhost:4000/api/admin-users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: values.email,
         name: values.name,
-        phone: phoneNumber,
+        phone: values.phone,
         role: values.role,
-        status: values.status,
-      })
-      .eq('id', id);
-
-    if (error) throw error;
-    
-    return true;
+      }),
+    });
+    const result = await response.json();
+    if (response.ok) return true;
+    throw new Error(result.error || 'Failed to update user');
   } catch (error) {
     console.error("Error updating user:", error);
     toast("Failed to update user");
@@ -84,14 +84,12 @@ export const updateUser = async (id: string, values: Omit<User, "id">): Promise<
  */
 export const deleteUser = async (id: string): Promise<boolean> => {
   try {
-    const { error } = await supabase
-      .from('users')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-    
-    return true;
+    const response = await fetch(`http://localhost:4000/api/admin-users/${id}`, {
+      method: 'DELETE',
+    });
+    const result = await response.json();
+    if (response.ok) return true;
+    throw new Error(result.error || 'Failed to delete user');
   } catch (error) {
     console.error("Error deleting user:", error);
     toast("Failed to delete user");

@@ -1,34 +1,43 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileText, Calendar } from "lucide-react";
-
-// Mock data for stats
-const stats = [
-  { 
-    title: "Total Users", 
-    value: 342, 
-    icon: Users, 
-    change: "+12%", 
-    color: "bg-blue-100 text-blue-600" 
-  },
-  { 
-    title: "Active Bookings", 
-    value: 56, 
-    icon: FileText, 
-    change: "+3%", 
-    color: "bg-green-100 text-green-600" 
-  },
-  { 
-    title: "Upcoming Trips", 
-    value: 24, 
-    icon: Calendar, 
-    change: "+18%", 
-    color: "bg-orange-100 text-orange-600" 
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
 
 export const StatCards: React.FC = () => {
+  const [stats, setStats] = useState([
+    { title: "Total Users", value: 0, icon: Users, change: "", color: "bg-blue-100 text-blue-600" },
+    { title: "Active Bookings", value: 0, icon: FileText, change: "", color: "bg-green-100 text-green-600" },
+    { title: "Upcoming Trips", value: 0, icon: Calendar, change: "", color: "bg-orange-100 text-orange-600" },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true);
+      // Total Users (from backend API for Auth users)
+      let userCount = 0;
+      try {
+        const response = await fetch('http://localhost:4000/api/admin-users');
+        const result = await response.json();
+        userCount = result?.users?.length || result?.data?.length || 0;
+      } catch (e) {
+        userCount = 0;
+      }
+      // Active Bookings (status Confirmed)
+      const { count: activeBookings } = await supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", "Confirmed");
+      // Upcoming Trips (start_date in future)
+      const today = new Date().toISOString().split('T')[0];
+      const { count: upcomingTrips } = await supabase.from("trips").select("id", { count: "exact", head: true }).gt("start_date", today);
+      setStats([
+        { title: "Total Users", value: userCount || 0, icon: Users, change: "", color: "bg-blue-100 text-blue-600" },
+        { title: "Active Bookings", value: activeBookings || 0, icon: FileText, change: "", color: "bg-green-100 text-green-600" },
+        { title: "Upcoming Trips", value: upcomingTrips || 0, icon: Calendar, change: "", color: "bg-orange-100 text-orange-600" },
+      ]);
+      setLoading(false);
+    };
+    fetchStats();
+  }, []);
+
   return (
     <div className="grid gap-6 md:grid-cols-3">
       {stats.map((stat) => (
@@ -40,8 +49,8 @@ export const StatCards: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stat.value}</div>
-            <p className="text-xs text-muted-foreground mt-1">{stat.change} from last month</p>
+            <div className="text-3xl font-bold">{loading ? "..." : stat.value}</div>
+            {/* <p className="text-xs text-muted-foreground mt-1">{stat.change} from last month</p> */}
           </CardContent>
         </Card>
       ))}

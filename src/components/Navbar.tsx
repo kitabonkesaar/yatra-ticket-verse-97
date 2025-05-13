@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -20,7 +19,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-gradient">Bharat Yatra</span>
+            <span className="text-2xl font-bold text-gradient">Mo Yatra</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
+import MyBookings from './MyBookings';
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email.").optional(),
@@ -116,118 +117,115 @@ const ProfilePage = () => {
         <Footer />
       </div>;
   }
-  return <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-      <main className="container-custom py-[47px] my-[13px] mx-[240px] px-[45px]">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">My Profile</h1>
-          
-          <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="password">Password</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="profile">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
-                  <CardDescription>Update your personal information</CardDescription>
-                </CardHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onUpdateProfile)}>
-                    <CardContent className="space-y-4">
-                      <FormField control={form.control} name="fullName" render={({
-                      field
-                    }) => <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>} />
-                      <FormField control={form.control} name="email" render={({
-                      field
-                    }) => <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input {...field} disabled />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>} />
-                      <FormField control={form.control} name="phone" render={({
-                      field
-                    }) => <FormItem>
-                            <FormLabel>Phone</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>} />
-                    </CardContent>
-                    <CardFooter>
-                      <Button type="submit" disabled={loadingProfile} className="bg-bharat-orange hover:bg-bharat-orange/90">
-                        {loadingProfile ? "Saving..." : "Update Profile"}
-                      </Button>
-                    </CardFooter>
-                  </form>
-                </Form>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="password">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Change Password</CardTitle>
-                  <CardDescription>Update your account password</CardDescription>
-                </CardHeader>
-                <Form {...passwordForm}>
-                  <form onSubmit={passwordForm.handleSubmit(onUpdatePassword)}>
-                    <CardContent className="space-y-4">
-                      <FormField control={passwordForm.control} name="currentPassword" render={({
-                      field
-                    }) => <FormItem>
-                            <FormLabel>Current Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>} />
-                      <FormField control={passwordForm.control} name="newPassword" render={({
-                      field
-                    }) => <FormItem>
-                            <FormLabel>New Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>} />
-                      <FormField control={passwordForm.control} name="confirmPassword" render={({
-                      field
-                    }) => <FormItem>
-                            <FormLabel>Confirm New Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>} />
-                    </CardContent>
-                    <CardFooter>
-                      <Button type="submit" disabled={loadingPasswordUpdate} className="bg-bharat-orange hover:bg-bharat-orange/90">
-                        {loadingPasswordUpdate ? "Updating..." : "Update Password"}
-                      </Button>
-                    </CardFooter>
-                  </form>
-                </Form>
-              </Card>
-            </TabsContent>
-          </Tabs>
-          
-          <div className="mt-8 text-center">
-            <Button variant="outline" onClick={handleLogout}>
-              Log Out
-            </Button>
-          </div>
+      <main className="flex-1 w-full px-2 sm:px-4 py-4 sm:py-6 max-w-3xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">My Profile</h1>
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="mb-3 sm:mb-4 flex flex-col sm:flex-row gap-2 sm:gap-0 w-full">
+            <TabsTrigger value="profile" className="flex-1">Profile</TabsTrigger>
+            <TabsTrigger value="password" className="flex-1">Password</TabsTrigger>
+          </TabsList>
+          <TabsContent value="profile">
+            <Card className="w-full shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl">Profile Information</CardTitle>
+                <CardDescription>Update your personal information</CardDescription>
+              </CardHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onUpdateProfile)}>
+                  <CardContent className="space-y-4">
+                    <FormField control={form.control} name="fullName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="w-full" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="email" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} disabled className="w-full" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="phone" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="w-full" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </CardContent>
+                  <CardFooter>
+                    <Button type="submit" disabled={loadingProfile} className="bg-bharat-orange hover:bg-bharat-orange/90 w-full">
+                      {loadingProfile ? "Saving..." : "Update Profile"}
+                    </Button>
+                  </CardFooter>
+                </form>
+              </Form>
+            </Card>
+          </TabsContent>
+          <TabsContent value="password">
+            <Card className="w-full shadow-sm mt-4 sm:mt-0">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl">Change Password</CardTitle>
+                <CardDescription>Update your account password</CardDescription>
+              </CardHeader>
+              <Form {...passwordForm}>
+                <form onSubmit={passwordForm.handleSubmit(onUpdatePassword)}>
+                  <CardContent className="space-y-4">
+                    <FormField control={passwordForm.control} name="currentPassword" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} className="w-full" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={passwordForm.control} name="newPassword" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} className="w-full" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={passwordForm.control} name="confirmPassword" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm New Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} className="w-full" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </CardContent>
+                  <CardFooter>
+                    <Button type="submit" disabled={loadingPasswordUpdate} className="bg-bharat-orange hover:bg-bharat-orange/90 w-full">
+                      {loadingPasswordUpdate ? "Updating..." : "Update Password"}
+                    </Button>
+                  </CardFooter>
+                </form>
+              </Form>
+            </Card>
+          </TabsContent>
+        </Tabs>
+        <div className="mt-6 sm:mt-8 text-center flex flex-col gap-3">
+          <Link to="/my-bookings">
+            <Button variant="secondary" className="w-full">My Bookings</Button>
+          </Link>
+          <Button variant="outline" onClick={handleLogout} className="w-full">
+            Log Out
+          </Button>
         </div>
       </main>
       <Footer />

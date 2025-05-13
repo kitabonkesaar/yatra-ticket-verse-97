@@ -5,7 +5,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-bharat-orange">Bharat Yatra</h3>
+            <h3 className="text-xl font-bold mb-4 text-bharat-orange">Mo Yatra</h3>
             <p className="text-gray-300 mb-4">
               Budget-friendly spiritual journeys across India. Experience the soul of Bharat with our carefully curated pilgrimage tours.
             </p>
@@ -47,6 +47,12 @@ const Footer = () => {
               <li>
                 <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
               </li>
+              <li>
+                <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link to="/terms-of-service" className="text-gray-300 hover:text-white transition-colors">Terms of Service</Link>
+              </li>
             </ul>
           </div>
 
@@ -74,7 +80,7 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4">Contact Us</h3>
             <p className="text-gray-300 mb-2">Near FM Golei , Balasore 756001</p>
             <p className="text-gray-300 mb-2">+91 8018958872</p>
-            <p className="text-gray-300 mb-4">info@bharatyatra.com</p>
+            <p className="text-gray-300 mb-4">info@moyatra.com</p>
             <Link to="/contact" className="inline-block text-sm font-medium text-bharat-orange hover:underline">
               Send us a message
             </Link>
@@ -83,7 +89,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-gray-800">
           <p className="text-sm text-gray-400 text-center">
-            &copy; {new Date().getFullYear()} Bharat Yatra. All rights reserved.
+            &copy; {new Date().getFullYear()} Mo Yatra. All rights reserved.
           </p>
         </div>
       </div>

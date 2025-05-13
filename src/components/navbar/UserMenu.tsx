@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { User, LogOut, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -55,7 +54,7 @@ const UserMenu = ({ user }: UserMenuProps) => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/profile" className="cursor-pointer">
+          <Link to="/my-bookings" className="cursor-pointer">
             <Ticket className="mr-2 h-4 w-4" />
             <span>My Bookings</span>
           </Link>

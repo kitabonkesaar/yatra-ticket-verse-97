@@ -1,19 +1,40 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock data for destinations chart
-const destinationData = [
-  { name: 'Manali', value: 35 },
-  { name: 'Ladakh', value: 25 },
-  { name: 'Shimla', value: 20 },
-  { name: 'Others', value: 20 },
-];
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A020F0', '#FF6666'];
 
 export const PopularDestinationsChart: React.FC = () => {
+  const [destinationData, setDestinationData] = useState<{ name: string; value: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("trip_title")
+        .eq("status", "Confirmed");
+      if (error || !data) {
+        setDestinationData([]);
+        setLoading(false);
+        return;
+      }
+      // Count bookings per destination
+      const destMap: Record<string, number> = {};
+      data.forEach((b: any) => {
+        if (b.trip_title) {
+          destMap[b.trip_title] = (destMap[b.trip_title] || 0) + 1;
+        }
+      });
+      const arr = Object.entries(destMap).map(([name, value]) => ({ name, value }));
+      setDestinationData(arr);
+      setLoading(false);
+    };
+    fetchDestinations();
+  }, []);
+
   return (
     <Card className="border-none shadow-md lg:col-span-1">
       <CardHeader>
@@ -40,6 +61,7 @@ export const PopularDestinationsChart: React.FC = () => {
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
+          {loading && <div className="text-center mt-4">Loading...</div>}
         </div>
       </CardContent>
     </Card>
