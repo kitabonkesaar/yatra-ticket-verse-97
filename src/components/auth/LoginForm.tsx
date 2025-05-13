@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -90,12 +89,6 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-        </div>
-        
-        <div className="pt-4 text-sm">
-          <p className="text-orange-600">Demo Accounts:</p>
-          <p>- User: user@bharatyatra.com / password123</p>
-          <p>- Admin: admin@bharatyatra.com / admin123</p>
         </div>
       </CardContent>
       
