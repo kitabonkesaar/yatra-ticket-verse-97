@@ -89,6 +89,33 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Photo and Description Section */}
+        <section className="py-12 bg-white">
+          <div className="container mx-auto flex flex-col md:flex-row items-center gap-8">
+            {/* Image */}
+            <div className="flex-1">
+              <img
+                src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80"
+                alt="Spiritual Journey"
+                className="rounded-lg shadow-lg w-full object-cover"
+              />
+            </div>
+            {/* Text */}
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold mb-4 text-red-900">Experience the Journey</h2>
+              <p className="text-lg text-gray-700 mb-4">
+                Join Mo Yatra for a unique blend of comfort, spirituality, and adventure. Our tours are designed to provide you with a memorable and meaningful experience, connecting you with sacred destinations across India.
+              </p>
+              <ul className="list-disc pl-5 text-gray-700">
+                <li>Personalized attention and support</li>
+                <li>Curated itineraries for all age groups</li>
+                <li>Safe and hygienic travel arrangements</li>
+                <li>Affordable packages for every budget</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
         <WhyChooseUs />
         <Testimonials />
         <CTASection />
